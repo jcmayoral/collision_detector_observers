@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+import Adafruit_ADXL345
+import time
+
+if __name__ == '__main__':
+    accel = Adafruit_ADXL345.ADXL345()
+    print('Printing X, Y, Z axis values, press Ctrl-C to quit...')
+    while True:
+        # Read the X, Y, Z axis acceleration values and print them.
+        x, y, z = accel.read()
+        print('X={0}, Y={1}, Z={2}'.format(x, y, z))
+        # Wait half a second and repeat.
+        time.sleep(0.5)
