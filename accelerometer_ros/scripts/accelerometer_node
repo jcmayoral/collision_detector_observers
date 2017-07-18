@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from accelerometer_ros.Publisher import Publisher
+from accelerometer_ros.Publisher import AccPublisher
 import time
 
 if __name__ == '__main__':
-    main = Publisher()
+    main = AccPublisher()
     main.run()
