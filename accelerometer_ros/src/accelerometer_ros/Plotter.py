@@ -14,13 +14,16 @@ class Plotter:
         rospy.spin()
 
     def accCB(self, msg):
-        self.step_.append(msg.seq)
-        self.append([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
-        if (msg.seq % self.threshold is 0): 
-           plt.plot(self.step_, self.data_[:,0])
-           plt.plot(self.step_, self.data_[:,1])
-           plt.plot(self.step_, self.data_[:,2])
-           plt.show()
+        self.step_.append(msg.header.seq)
+        self.data_.append([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+        if (msg.header.seq % self.threshold_ is 0): 
+           #plt.plot(self.step_, self.data_)
+           self.f_ = plt.figure()
+           self.ax_ = self.f_.gca()
+           #plt.show()
+           self.ax_.plot(self.step_,self.data_)
+           self.f_.canvas.draw()
            del self.step_[:]
            del self.data_[:]
+           self.f_.show()
 
