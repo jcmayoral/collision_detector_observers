@@ -4,4 +4,4 @@ from accelerometer_ros.Plotter import Plotter
 import time
 
 if __name__ == '__main__':
-    main = Plotter()
+    main = Plotter(500)
