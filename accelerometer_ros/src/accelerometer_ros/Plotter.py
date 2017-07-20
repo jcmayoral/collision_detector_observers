@@ -11,7 +11,8 @@ class Plotter:
         self.data_ = []
         self.step_ = []
         self.threshold_ = threshold
-        self.f, self.ax = plt.subplots()
+        self.f = plt.figure()
+        self.ax = plt.axes()
         self.ax.set_title('Simple plot')
         self.pace_ = pace
         rospy.Subscriber("accel", AccelStamped, self.accCB)
@@ -30,18 +31,11 @@ class Plotter:
         self.data_.append([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
 
         if msg.header.seq % self.pace_ is 0:
-            print("Plot")
             self.ax.plot(self.step_, self.data_)
             plt.draw()
 
 
-        if msg.header.seq % self.threshold_ is 0:
-            print ("Threshold reached")
+        if len(self.step_) is self.threshold_:
             self.step_.pop(0)
             self.data_.pop(0)
-            self.f.cla()
-        #self.ax_.plot(self.step_,self.data_)
-        #plt.draw()
-        #del self.step_[:]
-        #del self.data_[:]
-        #self.f_.show()
+            self.ax.cla()
