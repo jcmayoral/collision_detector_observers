@@ -11,16 +11,12 @@ class RealTimePlotter:
         self.pace_ = pace
         print ("RealTimePlotter Constructor Initialized")
 
-    def stop(self):
-        plt.close("all")
 
     def update(self,seq,x,y):
-
         if seq % self.pace_ is 0:
             self.ax.plot(x,y)
             plt.draw()
 
-        print (len(x))
         if len(x) is self.threshold_:
             x.pop(0)
             y.pop(0)
