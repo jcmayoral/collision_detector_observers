@@ -1,5 +1,5 @@
-import Adafruit_ADXL345
 import rospy
+import Adafruit_ADXL345
 from geometry_msgs.msg import AccelStamped
 
 class AccPublisher:

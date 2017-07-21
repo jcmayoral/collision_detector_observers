@@ -1,5 +1,4 @@
 import rospy
-import time
 from accelerometer_ros.RealTimePlotter import RealTimePlotter
 from geometry_msgs.msg import AccelStamped
 import matplotlib
