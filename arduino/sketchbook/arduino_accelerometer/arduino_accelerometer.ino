@@ -47,7 +47,6 @@ void loop()
 {
   readAccel(); //Leer aceleracion x, y, z
   nh.spinOnce();
-  delay(10);
 }
 
 void readAccel() {
