@@ -20,15 +20,15 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         plt.close("all")
 
     def accCB(self, msg):
-        while (self.i<100):
+        while (self.i<10):
             self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
             self.i = self.i+1
             if len(self.samples) is self.threshold_:
                 self.samples.pop(0)
             return
         self.i=0
-        print (self.cum_sum)
         self.changeDetection()
         self.step_.append(msg.header.seq)
-        self.data_.append(self.cum_sum - self.data_[-1])
+        print(self.cum_sum)
+        self.data_.append([self.cum_sum[0],self.cum_sum[1],self.cum_sum[2]])
         self.update(msg.header.seq,self.step_,self.data_)
