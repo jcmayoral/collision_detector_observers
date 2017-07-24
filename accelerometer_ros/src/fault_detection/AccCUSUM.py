@@ -22,7 +22,7 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         plt.close("all")
 
     def accCB(self, msg):
-        while (self.i<50):
+        while (self.i<20):
             self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
             self.i = self.i+1
             if len(self.samples) is self.threshold_:
