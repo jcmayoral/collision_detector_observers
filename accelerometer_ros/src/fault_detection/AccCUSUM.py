@@ -2,15 +2,17 @@ import rospy
 from accelerometer_ros.RealTimePlotter import RealTimePlotter
 from FaultDetection import ChangeDetection
 from geometry_msgs.msg import AccelStamped
+import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 class AccCUSUM(RealTimePlotter,ChangeDetection):
-    def __init__(self, threshold = 1000, pace = 200):
-        self.data_ = [0,0,0]
+    def __init__(self, threshold = 500, pace = 200):
+        self.data_ = []
         self.step_ = []
         self.i = 0
+        self.msg = 0
         RealTimePlotter.__init__(self,threshold,pace)
         ChangeDetection.__init__(self,10)
         rospy.init_node("accelerometer_cusum", anonymous=True)
@@ -20,7 +22,7 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         plt.close("all")
 
     def accCB(self, msg):
-        while (self.i<10):
+        while (self.i<50):
             self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
             self.i = self.i+1
             if len(self.samples) is self.threshold_:
@@ -28,7 +30,9 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
             return
         self.i=0
         self.changeDetection()
-        self.step_.append(msg.header.seq)
-        print(self.cum_sum)
-        self.data_.append([self.cum_sum[0],self.cum_sum[1],self.cum_sum[2]])
+        cur = np.array(self.cum_sum, dtype = object)
+        self.step_.append(self.msg)
+        self.data_.append(cur)
+        self.msg = self.msg + 1
         self.update(msg.header.seq,self.step_,self.data_)
+        del self.samples[:]
