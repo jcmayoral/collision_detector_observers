@@ -35,4 +35,3 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         self.data_.append(cur)
         self.msg = self.msg + 1
         self.update(msg.header.seq,self.step_,self.data_)
-        del self.samples[:]
