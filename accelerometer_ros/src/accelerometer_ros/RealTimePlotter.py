@@ -15,9 +15,11 @@ class RealTimePlotter:
     def update(self,seq,x,y):
         if seq % self.pace_ is 0:
             self.ax.plot(x,y)
+            print ("printing")
             plt.draw()
 
         if len(x) is self.max_samples:
+            print ("rremoving sample")
             x.pop(0)
             y.pop(0)
             self.ax.cla()

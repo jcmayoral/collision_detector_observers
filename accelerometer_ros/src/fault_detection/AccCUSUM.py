@@ -8,11 +8,12 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 class AccCUSUM(RealTimePlotter,ChangeDetection):
-    def __init__(self, max_samples = 50, pace = 200, window_size = ):
+    def __init__(self, max_samples = 500, pace = 2, cusum_window_size = 10 ):
         self.data_ = []
         self.step_ = []
         self.i = 0
         self.msg = 0
+        self.window_size = cusum_window_size
         RealTimePlotter.__init__(self,max_samples,pace)
         ChangeDetection.__init__(self,10)
         rospy.init_node("accelerometer_cusum", anonymous=True)
@@ -25,7 +26,7 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         while (self.i< self.window_size):
             self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
             self.i = self.i+1
-            if len(self.samples) is self.threshold_:
+            if len(self.samples) is self.max_samples:
                 self.samples.pop(0)
             return
         self.i=0
@@ -33,5 +34,6 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         cur = np.array(self.cum_sum, dtype = object)
         self.step_.append(self.msg)
         self.data_.append(cur)
+        print ("Ready for cusum", len(self.data_))
         self.msg = self.msg + 1
         self.update(msg.header.seq,self.step_,self.data_)
