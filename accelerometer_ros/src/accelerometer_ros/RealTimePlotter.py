@@ -3,8 +3,8 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 class RealTimePlotter:
-    def __init__(self, threshold = 1000, pace = 200):
-        self.threshold_ = threshold
+    def __init__(self, max_samples = 1000, pace = 200):
+        self.max_samples = max_samples
         self.f = plt.figure()
         self.ax = plt.axes()
         self.ax.set_title('Simple plot')
@@ -17,7 +17,7 @@ class RealTimePlotter:
             self.ax.plot(x,y)
             plt.draw()
 
-        if len(x) is self.threshold_:
+        if len(x) is self.max_samples:
             x.pop(0)
             y.pop(0)
             self.ax.cla()
