@@ -1,5 +1,5 @@
 import rospy
-from accelerometer_ros.RealTimePlotter import RealTimePlotter
+from MyStatics.RealTimePlotter import RealTimePlotter
 from geometry_msgs.msg import AccelStamped
 import matplotlib
 matplotlib.use('TkAgg')
