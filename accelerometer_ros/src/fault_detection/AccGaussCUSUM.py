@@ -13,8 +13,6 @@ class AccGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
     def __init__(self, max_samples = 500, pace = 2, cusum_window_size = 10 ):
         self.data_ = []
         self.data_.append([0,0,0])
-        self.step_ = []
-        self.step_.append(0)
         self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
@@ -39,7 +37,6 @@ class AccGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
         self.changeDetection(len(self.samples))
         cur = np.array(self.cum_sum, dtype = object)
         self.call(self.s_z,np.mean(self.samples, axis=0),np.var(self.samples, axis=0))
-        self.step_.append(self.msg)
-        self.data_.append(cur)
-        self.msg = self.msg + 1
-        self.update(msg.header.seq,self.x,self.rv.pdf(self.x))
+        self.x = np.linspace(-100, 100, 400)
+        y = [i.pdf(self.x) for i in self.rv]
+        self.update(msg.header.seq,self.x.tolist(),y[0].tolist())
