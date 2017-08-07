@@ -20,11 +20,9 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         ChangeDetection.__init__(self,10)
         rospy.init_node("accelerometer_cusum", anonymous=True)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
-        plt.show()
         plt.legend()
-        while not rospy.is_shutdown():
-            pass
-        #rospy.spin()
+        plt.show()
+        rospy.spin()
         plt.close("all")
 
     def accCB(self, msg):
