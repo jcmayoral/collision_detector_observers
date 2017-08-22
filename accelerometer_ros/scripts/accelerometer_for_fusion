@@ -2,4 +2,4 @@
 from fault_detection.FusionAcc import FusionAcc
 
 if __name__ == '__main__':
-    main = FusionAcc(3)
+    main = FusionAcc(10)
