@@ -1,5 +1,5 @@
 import rospy
-from sensor_msgs.msg import Imu, PointCloud2
+from sensor_msgs.msg import Imu
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist, Vector3, PoseWithCovarianceStamped, Quaternion
 
@@ -14,7 +14,8 @@ class FakeIMU:
         self.orientation = Quaternion()
         self.twist = Twist()
         self.is_shutdown = False
-        print "Republisher Node Initialized"
+        self.last_values = [0,0,0]
+        print "Fake_Imu Node Initialized"
 
     def OdomCB(self,msg):
         msg.child_frame_id = "base_link"
@@ -29,12 +30,12 @@ class FakeIMU:
         tmp.header.frame_id = "base_link"
         tmp.orientation = self.orientation
 
-        tmp.linear_acceleration.x = self.twist.linear.x / self.freq
-        tmp.linear_acceleration.y = self.twist.linear.y / self.freq
-        tmp.angular_velocity.z = self.twist.angular.z / self.freq
+        tmp.linear_acceleration.x = self.twist.linear.x - self.last_values[0]
+        tmp.linear_acceleration.y = self.twist.linear.y - self.last_values[1]
+        tmp.angular_velocity.z = self.twist.angular.z - self.last_values[2]
         self.imu_Publisher.publish(tmp)
-        self.is_Pose_received = False
-        self.is_Twist_received = False
+
+        self.last_values = [tmp.linear_acceleration.x , tmp.linear_acceleration.y, tmp.angular_velocity.z]
 
     def shutdown(self):
         self.is_shutdown = True

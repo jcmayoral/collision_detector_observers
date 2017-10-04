@@ -2,14 +2,14 @@ import rospy
 from MyStatics.RealTimePlotter import RealTimePlotter
 from MyStatics.GaussianPlotter import GaussPlot
 from FaultDetection import ChangeDetection
-from geometry_msgs.msg import AccelStamped
+from sensor_msgs.msg import Imu
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
-class AccGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
+class IMUGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
     def __init__(self, max_samples = 500, pace = 2, cusum_window_size = 10 ):
         self.data_ = []
         self.data_.append([0,0,0])
@@ -19,16 +19,16 @@ class AccGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
         RealTimePlotter.__init__(self,max_samples,pace)
         ChangeDetection.__init__(self,10)
         GaussPlot.__init__(self )
-        rospy.init_node("accelerometer_cusum", anonymous=True)
-        rospy.Subscriber("accel", AccelStamped, self.accCB)
+        rospy.init_node("imu_cusum", anonymous=True)
+        rospy.Subscriber("imu", Imu, self.imuCB)
         plt.legend()
         plt.show()
         rospy.spin()
         plt.close("all")
 
-    def accCB(self, msg):
+    def imuCB(self, msg):
         while (self.i< self.window_size):
-            self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+            self.addData([msg.linear_acceleration.x,msg.linear_acceleration.y, msg.angular_velocity.z])
             self.i = self.i+1
             if len(self.samples) is self.max_samples:
                 self.samples.pop(0)
@@ -43,6 +43,6 @@ class AccGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
         print(len(x1), len(np.sort(self.s_z)))
         plt.scatter([x1,x1,x1],np.sort(self.s_z))
         """
-        x = np.linspace(-140, 140, 200)
+        x = np.linspace(-1, 1, 100)
         y = np.array([i.pdf(x) for i in self.rv])
         self.update(msg.header.seq,x.tolist(),y.T.tolist())

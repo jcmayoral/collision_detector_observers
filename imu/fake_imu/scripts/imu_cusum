@@ -2,4 +2,4 @@
 from imu_fault_detection.IMUCUSUM import IMUCUSUM
 
 if __name__ == '__main__':
-    main = IMUCUSUM(40,1,6)
+    main = IMUCUSUM(40,1,5)

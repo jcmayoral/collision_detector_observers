@@ -1,11 +1,11 @@
 import rospy
 from FaultDetection import ChangeDetection
-from geometry_msgs.msg import AccelStamped
+from sensor_msgs.msg import Imu
 from fusion_msgs.msg import sensorFusionMsg
 import numpy as np
 
-class FusionAcc(ChangeDetection):
-    def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 100):
+class FusionIMU(ChangeDetection):
+    def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="imu1", threshold = 0.001):
         self.data_ = []
         self.data_.append([0,0,0])
         self.i = 0
@@ -15,14 +15,14 @@ class FusionAcc(ChangeDetection):
         self.sensor_id = sensor_id
         self.threshold = threshold
         ChangeDetection.__init__(self,10)
-        rospy.init_node("accelerometer_cusum", anonymous=True)
-        rospy.Subscriber("accel", AccelStamped, self.accCB)
+        rospy.init_node("imu_cusum", anonymous=True)
+        rospy.Subscriber("imu", Imu, self.imuCB)
         self.pub = rospy.Publisher('collisions_1', sensorFusionMsg, queue_size=10)
         rospy.spin()
 
-    def accCB(self, msg):
+    def imuCB(self, msg):
         while (self.i< self.window_size):
-            self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+            self.addData([msg.linear_acceleration.x,msg.linear_acceleration.y, msg.angular_velocity.z])
             self.i = self.i+1
             if len(self.samples) is self.window_size:
                 self.samples.pop(0)
@@ -33,12 +33,11 @@ class FusionAcc(ChangeDetection):
         self.i=0
         self.changeDetection(len(self.samples))
 
-
         cur = np.array(self.cum_sum, dtype = object)
         #Filling Message
         msg.header.frame_id = self.frame
         msg.window_size = self.window_size
-        
+
         #Detecting Collisions
         if any(t > self.threshold for t in cur):
             msg.msg = sensorFusionMsg.ERROR

@@ -2,4 +2,4 @@
 from fake_imu.IMUPlotter import IMUPlotter
 
 if __name__ == '__main__':
-    main = IMUPlotter(100,20)
+    main = IMUPlotter(50,20)
