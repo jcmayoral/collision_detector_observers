@@ -17,7 +17,7 @@ class FusionAcc(ChangeDetection):
         ChangeDetection.__init__(self,10)
         rospy.init_node("accelerometer_cusum", anonymous=True)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
-        self.pub = rospy.Publisher('collisions_1', sensorFusionMsg, queue_size=10)
+        self.pub = rospy.Publisher('collisions_0', sensorFusionMsg, queue_size=10)
         rospy.spin()
 
     def accCB(self, msg):
