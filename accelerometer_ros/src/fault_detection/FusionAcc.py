@@ -42,7 +42,8 @@ class FusionAcc(ChangeDetection):
         #Detecting Collisions
         if any(t > self.threshold for t in cur):
             msg.msg = sensorFusionMsg.ERROR
-
+        
+        msg.header.stamp = rospy.Time.now()
         msg.sensor_id.data = self.sensor_id
         msg.data = cur
         self.pub.publish(msg)
