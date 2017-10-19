@@ -59,6 +59,7 @@ void readAccel() {
   int y = (((int)_buff[3]) << 8) | _buff[2];
   int z = (((int)_buff[5]) << 8) | _buff[4];
   acc_msg.header.frame_id = frame_;
+  acc_msg.header.stamp = nh.now();
   acc_msg.accel.linear.x = x;
   acc_msg.accel.linear.y = y;
   acc_msg.accel.angular.z = z;
