@@ -14,7 +14,7 @@ class FusionAcc(ChangeDetection):
         self.frame = frame
         self.sensor_id = sensor_id
         self.threshold = threshold
-        ChangeDetection.__init__(self,10)
+        ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_cusum", anonymous=True)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
         self.pub = rospy.Publisher('collisions_0', sensorFusionMsg, queue_size=10)
@@ -38,11 +38,11 @@ class FusionAcc(ChangeDetection):
         #Filling Message
         msg.header.frame_id = self.frame
         msg.window_size = self.window_size
-        
+
         #Detecting Collisions
         if any(t > self.threshold for t in cur):
             msg.msg = sensorFusionMsg.ERROR
-        
+
         msg.header.stamp = rospy.Time.now()
         msg.sensor_id.data = self.sensor_id
         msg.data = cur

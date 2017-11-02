@@ -18,7 +18,7 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         self.msg = 0
         self.window_size = cusum_window_size
         RealTimePlotter.__init__(self,max_samples,pace)
-        ChangeDetection.__init__(self,10)
+        ChangeDetection.__init__(self,3)
         rospy.init_node("accelerometer_cusum", anonymous=True)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
         plt.legend()
