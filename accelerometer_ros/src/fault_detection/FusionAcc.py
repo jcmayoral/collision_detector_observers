@@ -5,7 +5,7 @@ from fusion_msgs.msg import sensorFusionMsg
 import numpy as np
 
 class FusionAcc(ChangeDetection):
-    def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 100):
+    def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
         self.data_ = []
         self.data_.append([0,0,0])
         self.i = 0
