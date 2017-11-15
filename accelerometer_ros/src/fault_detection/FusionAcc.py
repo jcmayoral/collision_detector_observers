@@ -4,6 +4,10 @@ from geometry_msgs.msg import AccelStamped
 from fusion_msgs.msg import sensorFusionMsg
 import numpy as np
 
+#Dynamic Reconfigure
+from dynamic_reconfigure.server import Server
+from accelerometer_ros.cfg import accelerometerConfig
+
 class FusionAcc(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
         self.data_ = []
@@ -15,10 +19,16 @@ class FusionAcc(ChangeDetection):
         self.sensor_id = sensor_id
         self.threshold = threshold
         ChangeDetection.__init__(self)
-        rospy.init_node("accelerometer_cusum", anonymous=True)
+        rospy.init_node("accelerometer_fusion", anonymous=False)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
         self.pub = rospy.Publisher('collisions_0', sensorFusionMsg, queue_size=10)
+        self.dyn_reconfigure_srv = Server(accelerometerConfig, self.dynamic_reconfigureCB)
         rospy.spin()
+
+    def dynamic_reconfigureCB(self,config, level):
+        self.threshold = config["threshold"]
+        self.window_size = config["window_size"]
+        return config
 
     def accCB(self, msg):
         while (self.i< self.window_size):
