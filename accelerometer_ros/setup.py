@@ -5,7 +5,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 # fetch values from package.xml
 d = generate_distutils_setup(
-    packages=['accelerometer_ros','fault_detection'],
+    packages=['accelerometer_ros_plot','fault_detection'],
     package_dir={'': 'src'}
 )
 
