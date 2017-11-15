@@ -10,7 +10,7 @@ class Plotter(RealTimePlotter):
         self.data_ = []
         self.step_ = []
         print ("Plotter Constructor Initialized")
-        super().__init__(threshold,pace)
+        RealTimePlotter.__init__(self,threshold,pace)
         rospy.init_node("accelerometer_plotter", anonymous=True)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
         plt.show()
