@@ -18,6 +18,7 @@ class FusionAcc(ChangeDetection):
         self.frame = frame
         self.sensor_id = sensor_id
         self.threshold = threshold
+        self.weight = 1.0
         ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_fusion", anonymous=False)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
@@ -28,6 +29,7 @@ class FusionAcc(ChangeDetection):
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
+        self.weight = config["weight"]
         return config
 
     def accCB(self, msg):
@@ -56,4 +58,5 @@ class FusionAcc(ChangeDetection):
         msg.header.stamp = rospy.Time.now()
         msg.sensor_id.data = self.sensor_id
         msg.data = cur
+        msg.weight = self.weight
         self.pub.publish(msg)
