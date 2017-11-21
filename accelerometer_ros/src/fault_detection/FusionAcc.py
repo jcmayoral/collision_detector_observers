@@ -24,6 +24,7 @@ class FusionAcc(ChangeDetection):
         rospy.Subscriber("accel", AccelStamped, self.accCB)
         self.pub = rospy.Publisher('collisions_0', sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(accelerometerConfig, self.dynamic_reconfigureCB)
+        rospy.loginfo("Accelerometer Ready for Fusion")
         rospy.spin()
 
     def dynamic_reconfigureCB(self,config, level):
@@ -53,6 +54,7 @@ class FusionAcc(ChangeDetection):
 
         #Detecting Collisions
         if any(t > self.threshold for t in cur):
+            print "error"
             msg.msg = sensorFusionMsg.ERROR
 
         msg.header.stamp = rospy.Time.now()
