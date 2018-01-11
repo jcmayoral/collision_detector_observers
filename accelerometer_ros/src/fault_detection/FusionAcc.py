@@ -19,15 +19,16 @@ class FusionAcc(ChangeDetection):
         self.msg = 0
         self.window_size = cusum_window_size
         self.frame = frame
-        self.sensor_id = sensor_id
         self.threshold = threshold
         self.weight = 1.0
         ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_fusion", anonymous=False)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
-        sensor_number = rospy.get_param("sensor_number", 0)
+        sensor_number = rospy.get_param("~sensor_number", 0)
+        self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(accelerometerConfig, self.dynamic_reconfigureCB)
+        print (sensor_number)
         rospy.spin()
 
     def dynamic_reconfigureCB(self,config, level):
