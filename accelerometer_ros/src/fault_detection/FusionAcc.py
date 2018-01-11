@@ -25,7 +25,8 @@ class FusionAcc(ChangeDetection):
         ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_fusion", anonymous=False)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
-        self.pub = rospy.Publisher('collisions_0', sensorFusionMsg, queue_size=10)
+        sensor_number = rospy.get_param("sensor_number", 0)
+        self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(accelerometerConfig, self.dynamic_reconfigureCB)
         rospy.spin()
 
@@ -49,7 +50,7 @@ class FusionAcc(ChangeDetection):
         current_mean = np.mean(self.samples, axis=0)
         diff = np.round(np.array(current_mean) - np.array(self.last_mean))
         #print (diff)
-        output_msg.angle = np.degrees(np.arctan2(diff[0],diff[1]))
+        output_msg.angle = np.degrees(np.arctan2(diff[1],diff[0]))
         #Detecting Collisions
 
         self.i=0
