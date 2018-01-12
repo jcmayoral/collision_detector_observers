@@ -48,9 +48,13 @@ class FusionAcc(ChangeDetection):
         output_msg = sensorFusionMsg()
 
         current_mean = np.mean(self.samples, axis=0)
-        diff = np.round(np.array(current_mean) - np.array(self.last_mean))
-        #print (diff)
-        output_msg.angle = np.degrees(np.arctan2(diff[1],diff[0]))
+        #print (current_mean)
+        tmp = (np.array(self.last_mean) - np.array(current_mean))
+        x,y,z = 9.81 * (tmp/255) * 2
+        magnitude = np. sqrt(np.power(x,2) + np.power(y,2) + np.power(z,2))
+        #print ("magnitude ", magnitude)
+        #print (np.arccos(x/magnitude), np.arccos(y/magnitude), np.arccos(z/magnitude))
+        output_msg.angle = np.arctan2(y,x)#np.arccos(x/magnitude)#np.arctan2(y,x)
         #Detecting Collisions
 
         self.i=0
@@ -60,10 +64,15 @@ class FusionAcc(ChangeDetection):
         #Filling Message
         output_msg.header.frame_id = self.frame
         output_msg.window_size = self.window_size
+        print ("Accelerations " , x,y,z)
 
         if any(t > self.threshold for t in cur):
             output_msg.msg = sensorFusionMsg.ERROR
-            print np.degrees(np.arctan2(diff[0],diff[1]))
+            print ("Collision")
+            print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+            print (np.degrees(np.arctan2(y,x)))
+            #print np.degrees(np.arctan2(diff[1],diff[0]))
+            #For Testing
 
 
         """
