@@ -28,6 +28,7 @@ class FusionAcc(ChangeDetection):
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(accelerometerConfig, self.dynamic_reconfigureCB)
+        rospy.loginfo("Accelerometer Ready for Fusion")
         rospy.spin()
 
     def dynamic_reconfigureCB(self,config, level):
