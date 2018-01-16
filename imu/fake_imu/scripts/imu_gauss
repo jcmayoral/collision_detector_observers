@@ -1,5 +1,0 @@
-#!/usr/bin/env python3
-from imu_fault_detection.IMUGaussCUSUM import IMUGaussCUSUM
-
-if __name__ == '__main__':
-    main = IMUGaussCUSUM(10,5,5)
