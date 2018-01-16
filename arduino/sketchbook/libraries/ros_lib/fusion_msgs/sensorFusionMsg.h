@@ -17,10 +17,12 @@ namespace fusion_msgs
       std_msgs::Header header;
       std_msgs::String sensor_id;
       int32_t window_size;
+      float weight;
       int8_t msg;
       uint8_t data_length;
       float st_data;
       float * data;
+      float angle;
       enum { OK = 0 };
       enum { WARN = 1 };
       enum { ERROR = 2 };
@@ -29,8 +31,10 @@ namespace fusion_msgs
       header(),
       sensor_id(),
       window_size(0),
+      weight(0),
       msg(0),
-      data_length(0), data(NULL)
+      data_length(0), data(NULL),
+      angle(0)
     {
     }
 
@@ -49,6 +53,7 @@ namespace fusion_msgs
       *(outbuffer + offset + 2) = (u_window_size.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_window_size.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->window_size);
+      offset += serializeAvrFloat64(outbuffer + offset, this->weight);
       union {
         int8_t real;
         uint8_t base;
@@ -72,6 +77,16 @@ namespace fusion_msgs
       *(outbuffer + offset + 3) = (u_datai.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->data[i]);
       }
+      union {
+        float real;
+        uint32_t base;
+      } u_angle;
+      u_angle.real = this->angle;
+      *(outbuffer + offset + 0) = (u_angle.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_angle.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_angle.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_angle.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->angle);
       return offset;
     }
 
@@ -91,6 +106,7 @@ namespace fusion_msgs
       u_window_size.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->window_size = u_window_size.real;
       offset += sizeof(this->window_size);
+      offset += deserializeAvrFloat64(inbuffer + offset, &(this->weight));
       union {
         int8_t real;
         uint8_t base;
@@ -118,11 +134,22 @@ namespace fusion_msgs
       offset += sizeof(this->st_data);
         memcpy( &(this->data[i]), &(this->st_data), sizeof(float));
       }
+      union {
+        float real;
+        uint32_t base;
+      } u_angle;
+      u_angle.base = 0;
+      u_angle.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_angle.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_angle.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_angle.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->angle = u_angle.real;
+      offset += sizeof(this->angle);
      return offset;
     }
 
     const char * getType(){ return "fusion_msgs/sensorFusionMsg"; };
-    const char * getMD5(){ return "fb73691af2681e9ba3fec7d5d9793c38"; };
+    const char * getMD5(){ return "daff061ddcbe01ae32c61e5b2af42052"; };
 
   };
 
