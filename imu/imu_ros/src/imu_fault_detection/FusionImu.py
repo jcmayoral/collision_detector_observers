@@ -14,14 +14,14 @@ from imu_ros.cfg import imuConfig
 class FusionImu(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
         self.data_ = []
-        self.data_.append([0,0,0])
+        self.data_.append([0,0,0,0,0,0])
         self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
         self.frame = frame
         self.threshold = threshold
         self.weight = 1.0
-        ChangeDetection.__init__(self)
+        ChangeDetection.__init__(self,6)
         rospy.init_node("imu_fusion", anonymous=False)
         rospy.Subscriber("imu/data", Imu, self.imuCB)
         sensor_number = rospy.get_param("~sensor_number", 0)
@@ -40,7 +40,8 @@ class FusionImu(ChangeDetection):
     def imuCB(self, msg):
 
         while (self.i< self.window_size):
-            self.addData([msg.linear_acceleration.x,msg.linear_acceleration.y, msg.linear_acceleration.z]) #Just Linear For Testing
+            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
+                          msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
             self.i = self.i+1
             if len(self.samples) is self.window_size:
                 self.samples.pop(0)
@@ -51,7 +52,7 @@ class FusionImu(ChangeDetection):
         current_mean = np.mean(self.samples, axis=0)
         #print (current_mean)
         tmp = (np.array(self.last_mean) - np.array(current_mean))
-        x,y,z = 9.81 * (tmp/255) * 2
+        x,y,z,gx,gy,gz = 9.81 * (tmp/255) * 2
         magnitude = np. sqrt(np.power(x,2) + np.power(y,2) + np.power(z,2))
         #print ("magnitude ", magnitude)
         #print (np.arccos(x/magnitude), np.arccos(y/magnitude), np.arccos(z/magnitude))

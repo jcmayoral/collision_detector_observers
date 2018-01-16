@@ -19,5 +19,6 @@ class Plotter(RealTimePlotter):
 
     def imuCB(self, msg):
         self.step_.append(msg.header.seq)
-        self.data_.append([msg.linear_acceleration.x,msg.linear_acceleration.y, msg.linear_acceleration.z]) #Just Linear For Testing
+        self.data_.append([msg.linear_acceleration.x,msg.linear_acceleration.y, msg.linear_acceleration.z, #Linear
+                           msg.angular_velocity.x,msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
         self.update(msg.header.seq,self.step_,self.data_)
