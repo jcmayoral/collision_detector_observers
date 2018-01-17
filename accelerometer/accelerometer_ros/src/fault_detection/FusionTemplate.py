@@ -10,7 +10,9 @@ from accelerometer_ros.cfg import accelerometerConfig
 
 class AccFusionTemplate(SensorFusion):
     def __init__(self):
-        SensorFusion.__init__(self, cusum_window_size = 10,
+        SensorFusion.__init__(self,
+                              number_elements = 3,
+                              cusum_window_size = 10,
                               frame_id = "imu_frame",
                               sensor_id = "imu",
                               threshold = 60,
