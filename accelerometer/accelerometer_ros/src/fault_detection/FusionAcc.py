@@ -35,6 +35,10 @@ class FusionAcc(ChangeDetection):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
+
+        if config["reset"]:
+            self.clear_values()
+            config["rest"] = False
         return config
 
     def accCB(self, msg):
@@ -65,7 +69,7 @@ class FusionAcc(ChangeDetection):
         #Filling Message
         output_msg.header.frame_id = self.frame
         output_msg.window_size = self.window_size
-        print ("Accelerations " , x,y,z)
+        #print ("Accelerations " , x,y,z)
 
         if any(t > self.threshold for t in cur):
             output_msg.msg = sensorFusionMsg.ERROR
