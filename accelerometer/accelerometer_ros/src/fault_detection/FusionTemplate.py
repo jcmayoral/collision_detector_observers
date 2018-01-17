@@ -21,3 +21,6 @@ class AccFusionTemplate(SensorFusion):
                               topic_name = "accel",
                               sensor_number = 0,
                               config_type = accelerometerConfig)
+
+    def update(self,msg):
+        self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
