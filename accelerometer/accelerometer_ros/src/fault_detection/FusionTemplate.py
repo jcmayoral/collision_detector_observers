@@ -1,5 +1,5 @@
 import rospy
-from CollisionSensorTemplate import SensorFusion
+from CollisionSensorTemplates.SensorFusion import CollisionFusionSensor
 from geometry_msgs.msg import AccelStamped
 from fusion_msgs.msg import sensorFusionMsg
 import numpy as np
@@ -8,12 +8,12 @@ import numpy as np
 from dynamic_reconfigure.server import Server
 from accelerometer_ros.cfg import accelerometerConfig
 
-class AccFusionTemplate(SensorFusion):
+class AccFusionTemplate(CollisionFusionSensor):
     def __init__(self):
-        SensorFusion.__init__(self,
-                              number_elements = 3,
-                              cusum_window_size = 10,
-                              frame_id = "imu_frame",
+        CollisionFusionSensor.__init__(self,
+                              number_elements=6,
+                              window_size = 10,
+                              frame = "acc_frame",
                               sensor_id = "imu",
                               threshold = 60,
                               node = "acc_collision",
