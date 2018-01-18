@@ -1,6 +1,8 @@
 import rospy
 from MyStatics.RealTimePlotter import RealTimePlotter
 from MyStatics.GaussianPlotter import GaussPlot
+from dynamic_reconfigure.server import Server
+from imu_ros.cfg import imuGaussConfig
 from FaultDetection import ChangeDetection
 from sensor_msgs.msg import Imu
 import numpy as np
@@ -18,12 +20,18 @@ class ImuGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
         RealTimePlotter.__init__(self,max_samples,pace)
         ChangeDetection.__init__(self,6)
         GaussPlot.__init__(self )
-        rospy.init_node("imu_gauss", anonymous=True)
+        rospy.init_node("imu_gauss", anonymous=False)
         rospy.Subscriber("imu/data", Imu, self.imuCB)
+        self.dyn_reconfigure_srv = Server(imuGaussConfig, self.dynamic_reconfigureCB)
+
         plt.legend()
         plt.show()
         rospy.spin()
         plt.close("all")
+
+    def dynamic_reconfigureCB(self,config, level):
+        self.window_size = config["window_size"]
+        return config
 
     def imuCB(self, msg):
         while (self.i< self.window_size):

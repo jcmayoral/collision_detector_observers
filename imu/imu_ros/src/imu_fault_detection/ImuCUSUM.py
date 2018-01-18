@@ -1,6 +1,8 @@
 import rospy
 from MyStatics.RealTimePlotter import RealTimePlotter
 from sensor_msgs.msg import Imu
+from dynamic_reconfigure.server import Server
+from imu_ros.cfg import imuGaussConfig
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
@@ -20,10 +22,16 @@ class ImuCUSUM(RealTimePlotter,ChangeDetection):
         ChangeDetection.__init__(self,6)
         rospy.init_node("imu_cusum", anonymous=True)
         rospy.Subscriber("imu/data", Imu, self.imuCB)
+        self.dyn_reconfigure_srv = Server(imuGaussConfig, self.dynamic_reconfigureCB)
+
         plt.legend()
         plt.show()
         rospy.spin()
         plt.close("all")
+
+    def dynamic_reconfigureCB(self,config, level):
+        self.window_size = config["window_size"]
+        return config
 
     def imuCB(self, msg):
         while (self.i< self.window_size):
