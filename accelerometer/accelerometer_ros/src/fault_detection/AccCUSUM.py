@@ -1,6 +1,8 @@
 import rospy
 from MyStatics.RealTimePlotter import RealTimePlotter
 from geometry_msgs.msg import AccelStamped
+from dynamic_reconfigure.server import Server
+from accelerometer_ros.cfg import accelerometerGaussConfig
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
@@ -21,10 +23,16 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         ChangeDetection.__init__(self,3)
         rospy.init_node("accelerometer_cusum", anonymous=True)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
+        self.dyn_reconfigure_srv = Server(accelerometerGaussConfig, self.dynamic_reconfigureCB)
+
         plt.legend()
         plt.show()
         rospy.spin()
         plt.close("all")
+
+    def dynamic_reconfigureCB(self,config, level):
+        self.window_size = config["window_size"]
+        return config
 
     def accCB(self, msg):
         while (self.i< self.window_size):
