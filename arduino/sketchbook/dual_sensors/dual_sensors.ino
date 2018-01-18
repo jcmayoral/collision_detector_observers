@@ -11,15 +11,19 @@ setupACC();
 }
 
 void loop(){
-  readACC();readIMU();delay(2000);
+  readACC();readIMU();delay(1000);
 }
 
 void readIMU(){
-  /*
+  
   int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
   Wire.beginTransmission(MPU_addr);
-  Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
-  Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers
+  Wire.write(0x3B);
+  Wire.endTransmission();
+
+  Wire.beginTransmission(MPU_addr);
+  Wire.requestFrom(MPU_addr, 14);
+
   AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
   AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
   AcZ=Wire.read()<<8|Wire.read();  // 0x3F (ACCEL_ZOUT_H) & 0x40 (ACCEL_ZOUT_L)
@@ -27,8 +31,6 @@ void readIMU(){
   GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
-   Wire.endTransmission();
-
   
   Serial.print("AcX = "); Serial.print(AcX);
   Serial.print(" | AcY = "); Serial.print(AcY);
@@ -37,36 +39,7 @@ void readIMU(){
   Serial.print(" | GyX = "); Serial.print(GyX);
   Serial.print(" | GyY = "); Serial.print(GyY);
   Serial.print(" | GyZ = "); Serial.println(GyZ);
-  */
-  Wire.beginTransmission(MPU_addr);
-  Wire.write(0x3B);
-  Wire.endTransmission();
-
-  Wire.beginTransmission(MPU_addr);
-  Wire.requestFrom(MPU_addr, 6);
-
-  //while (Wire.available() < 6);
-
-  uint8_t xha = Wire.read();
-  uint8_t xla = Wire.read();
-        uint8_t yha = Wire.read();
-  uint8_t yla = Wire.read();
-  uint8_t zha = Wire.read();
-  uint8_t zla = Wire.read();
-  
-    /*#else
-  uint8_t xha = Wire.receive();
-  uint8_t xla = Wire.receive();
-  uint8_t yha = Wire.receive();
-  uint8_t yla = Wire.receive();
-  uint8_t zha = Wire.receive();
-  uint8_t zla = Wire.receive();
-    #endif
-    }*/
-
-    Serial.println(xha << 8 | xla);
-    Serial.println(yha << 8 | yla);
-    Serial.println(zha << 8 | zla);
+   Wire.endTransmission();
 
 }
 
@@ -74,9 +47,10 @@ void readACC(){
   int16_t AcX,AcY,AcZ;
   Wire.beginTransmission(ACC_addr);
   Wire.write(0x32);  
-  Wire.endTransmission(false);
+  Wire.endTransmission();
 
-  Wire.requestFrom(ACC_addr,6,true);  // 
+  Wire.beginTransmission(ACC_addr);
+  Wire.requestFrom(ACC_addr,6);  // 
  
   AcX=Wire.read()<<8|Wire.read();  //   
   AcY=Wire.read()<<8|Wire.read();  //
@@ -85,7 +59,8 @@ void readACC(){
   Serial.print("AcX = "); Serial.print(AcX);
   Serial.print(" | AcY = "); Serial.print(AcY);
   Serial.print(" | AcZ = "); Serial.println(AcZ);
-  
+   Wire.endTransmission();
+
 }
 
 
