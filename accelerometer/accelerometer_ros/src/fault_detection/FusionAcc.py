@@ -38,7 +38,7 @@ class FusionAcc(ChangeDetection):
 
         if config["reset"]:
             self.clear_values()
-            config["rest"] = False
+            config["reset"] = False
         return config
 
     def accCB(self, msg):
