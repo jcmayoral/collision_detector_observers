@@ -15,7 +15,6 @@ class FusionAcc(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
         self.data_ = []
         self.data_.append([0,0,0])
-        self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
         self.frame = frame
@@ -42,13 +41,10 @@ class FusionAcc(ChangeDetection):
         return config
 
     def accCB(self, msg):
+        self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
 
-        while (self.i< self.window_size):
-            self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
-            self.i = self.i+1
-            if len(self.samples) is self.window_size:
-                self.samples.pop(0)
-            return
+        if ( len(self.samples) > self.window_size):
+            self.samples.pop(0)
 
         output_msg = sensorFusionMsg()
 
