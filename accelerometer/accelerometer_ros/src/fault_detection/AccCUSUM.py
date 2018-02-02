@@ -35,13 +35,11 @@ class AccCUSUM(RealTimePlotter,ChangeDetection):
         return config
 
     def accCB(self, msg):
-        while (self.i< self.window_size):
-            self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
-            self.i = self.i+1
-            if len(self.samples) is self.max_samples:
-                self.samples.pop(0)
-            return
-        self.i=0
+        self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+
+        if ( len(self.samples) > self.window_size):
+            self.samples.pop(0)
+
         self.changeDetection(len(self.samples))
         cur = np.array(self.cum_sum, dtype = object)
         self.step_.append(self.msg)

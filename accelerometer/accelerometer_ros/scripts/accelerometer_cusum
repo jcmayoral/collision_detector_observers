@@ -2,4 +2,4 @@
 from fault_detection.AccCUSUM import AccCUSUM
 
 if __name__ == '__main__':
-    main = AccCUSUM(150,1,10)
+    main = AccCUSUM(500,1,10)

@@ -58,7 +58,6 @@ class FusionAcc(ChangeDetection):
         output_msg.angle = np.arctan2(y,x)#np.arccos(x/magnitude)#np.arctan2(y,x)
         #Detecting Collisions
 
-        self.i=0
         self.changeDetection(len(self.samples))
 
         cur = np.array(self.cum_sum, dtype = object)
