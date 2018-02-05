@@ -29,14 +29,20 @@ class FusionImu(ChangeDetection):
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
-        rospy.loginfo("Imu Ready for Fusion")
+        rospy.logjinfo("Imu Ready for Fusion")
         rospy.spin()
+
+    def reset_subscriber(self):
+        self.subscriber_.shutdown()
+        self.subscriber_ = rospy.Subscriber('collisions_' + str(self.sensor_number), sensor_type, self.sensorCB)
+
 
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
+        self.reset_subscriber()
 
         if config["reset"]:
             self.clear_values()

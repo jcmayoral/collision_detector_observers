@@ -18,7 +18,7 @@ class AccFusionTemplate(CollisionFusionSensor):
                               threshold = 60,
                               node = "acc_collision",
                               sensor_type = AccelStamped,
-                              topic_name = "accel",
+                              topic_name = "collisions_",
                               sensor_number = 0,
                               config_type = accelerometerConfig)
 
