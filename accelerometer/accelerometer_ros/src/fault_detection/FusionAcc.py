@@ -20,6 +20,7 @@ class FusionAcc(ChangeDetection):
         self.frame = frame
         self.threshold = threshold
         self.weight = 1.0
+        self.is_disable = False
         ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_fusion", anonymous=False)
         rospy.Subscriber("accel", AccelStamped, self.accCB)
@@ -34,6 +35,7 @@ class FusionAcc(ChangeDetection):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
+        self.is_disable = config["is_disable"]
 
         if config["reset"]:
             self.clear_values()
@@ -97,4 +99,6 @@ class FusionAcc(ChangeDetection):
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
         output_msg.weight = self.weight
-        self.pub.publish(output_msg)
+
+        if not self.is_disable:
+            self.pub.publish(output_msg)

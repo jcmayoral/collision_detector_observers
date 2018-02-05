@@ -21,6 +21,7 @@ class FusionImu(ChangeDetection):
         self.frame = frame
         self.threshold = threshold
         self.weight = 1.0
+        self.is_disable = False
         ChangeDetection.__init__(self,6)
         rospy.init_node("imu_fusion", anonymous=False)
         rospy.Subscriber("imu/data", Imu, self.imuCB)
@@ -35,6 +36,12 @@ class FusionImu(ChangeDetection):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
+        self.is_disable = config["is_disable"]
+
+        if config["reset"]:
+            self.clear_values()
+            config["reset"] = False
+
         return config
 
     def imuCB(self, msg):
@@ -99,4 +106,6 @@ class FusionImu(ChangeDetection):
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
         output_msg.weight = self.weight
-        self.pub.publish(output_msg)
+
+        if not self.is_disable:
+            self.pub.publish(output_msg)
