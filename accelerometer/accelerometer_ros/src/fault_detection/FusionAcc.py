@@ -23,7 +23,7 @@ class FusionAcc(ChangeDetection):
         self.is_disable = False
         ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_fusion", anonymous=False)
-        rospy.Subscriber("accel", AccelStamped, self.accCB)
+        self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.accCB)
         sensor_number = rospy.get_param("~sensor_number", 0)
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
@@ -31,16 +31,16 @@ class FusionAcc(ChangeDetection):
         rospy.loginfo("Accelerometer Ready for Fusion")
         rospy.spin()
 
-    def reset_subscriber(self):
-        self.subscriber_.shutdown()
-        self.subscriber_ = rospy.Subscriber('collisions_' + str(self.sensor_number), sensor_type, self.sensorCB)
+    def reset_publisher(self):
+        self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
 
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
-        self.reset_subscriber()
+        self.sensor_number = config["detector_id"]
+        self.reset_publisher()
 
         if config["reset"]:
             self.clear_values()
