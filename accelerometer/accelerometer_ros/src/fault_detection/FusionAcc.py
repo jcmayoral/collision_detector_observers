@@ -96,7 +96,7 @@ class FusionAcc(ChangeDetection):
         output_msg.data = cur
         output_msg.weight = self.weight
 
-        if not self.is_disable and is_collision_expected:
+        if not self.is_disable and self.is_collision_expected:
             self.pub.publish(output_msg)
 
     def accCB(self, msg):
