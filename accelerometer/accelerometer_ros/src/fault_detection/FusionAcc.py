@@ -89,7 +89,7 @@ class FusionAcc(ChangeDetection):
 
         if any(t > self.threshold for t in cur):
             output_msg.msg = sensorFusionMsg.ERROR
-            print ("Collision")
+            print ("Collision Filter")
 
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
@@ -127,9 +127,9 @@ class FusionAcc(ChangeDetection):
 
         if any(t > self.threshold for t in cur):
             output_msg.msg = sensorFusionMsg.ERROR
-            print ("Collision")
-            print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
-            print (np.degrees(np.arctan2(y,x)))
+            print ("Collision NOT FILTER")
+            #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+            #print (np.degrees(np.arctan2(y,x)))
             #print np.degrees(np.arctan2(diff[1],diff[0]))
             #For Testing
 
