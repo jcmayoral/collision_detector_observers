@@ -60,7 +60,7 @@ class FusionAcc(ChangeDetection):
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
         self.sensor_number = config["detector_id"]
-        self.is_filtered_available = config["filtered"]
+        self.is_filtered_available = config["is_filter"]
 
         self.reset_publisher()
         self.reset_subscriber()
