@@ -21,9 +21,14 @@ class FusionAcc(ChangeDetection):
         self.threshold = threshold
         self.weight = 1.0
         self.is_disable = False
+        self.is_filtered_available = False
+        self.is_collision_expected = False
+
         ChangeDetection.__init__(self)
         rospy.init_node("accelerometer_fusion", anonymous=False)
         self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.accCB)
+        self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
+
         sensor_number = rospy.get_param("~sensor_number", 0)
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
@@ -31,8 +36,23 @@ class FusionAcc(ChangeDetection):
         rospy.loginfo("Accelerometer Ready for Fusion")
         rospy.spin()
 
+    def filterCB(self, msg):
+        if msg.mode is controllerFusionMsg.IGNORE:
+            self.is_collision_expected = True
+        else:
+            self.is_collision_expected = False
+        rospy.sleep(0.1)
+
     def reset_publisher(self):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
+
+    def rest_subscriber(self):
+        self.subscriber_.unregister()
+
+        if self.is_filtered_available:
+            self.subscriber_ = rospy.Subscriber("accel", filteredAccCB, self.accCB)
+        else:
+            self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.accCB)
 
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
@@ -40,12 +60,44 @@ class FusionAcc(ChangeDetection):
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
         self.sensor_number = config["detector_id"]
+        self.is_filtered_available = config["filtered"]
+
         self.reset_publisher()
+        self.reset_subscriber()
 
         if config["reset"]:
             self.clear_values()
             config["reset"] = False
         return config
+
+    def filteredAccCB(self, msg):
+        self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+
+        if ( len(self.samples) > self.window_size):
+            self.samples.pop(0)
+
+        output_msg = sensorFusionMsg()
+
+        self.changeDetection(len(self.samples))
+
+        cur = np.array(self.cum_sum, dtype = object)
+
+        #Filling Message
+        output_msg.header.frame_id = self.frame
+        output_msg.window_size = self.window_size
+        #print ("Accelerations " , x,y,z)
+
+        if any(t > self.threshold for t in cur):
+            output_msg.msg = sensorFusionMsg.ERROR
+            print ("Collision")
+
+        output_msg.header.stamp = rospy.Time.now()
+        output_msg.sensor_id.data = self.sensor_id
+        output_msg.data = cur
+        output_msg.weight = self.weight
+
+        if not self.is_disable and is_collision_expected:
+            self.pub.publish(output_msg)
 
     def accCB(self, msg):
         self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
