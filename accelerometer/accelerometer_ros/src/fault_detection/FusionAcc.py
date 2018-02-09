@@ -46,7 +46,7 @@ class FusionAcc(ChangeDetection):
     def reset_publisher(self):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
 
-    def rest_subscriber(self):
+    def reset_subscriber(self):
         self.subscriber_.unregister()
 
         if self.is_filtered_available:
