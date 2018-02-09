@@ -39,9 +39,9 @@ class FusionAcc(ChangeDetection):
     def filterCB(self, msg):
         if msg.mode is controllerFusionMsg.IGNORE:
             self.is_collision_expected = True
+            rospy.sleep(0.1) # TODO
         else:
             self.is_collision_expected = False
-        rospy.sleep(0.1)
 
     def reset_publisher(self):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
@@ -50,9 +50,9 @@ class FusionAcc(ChangeDetection):
         self.subscriber_.unregister()
 
         if self.is_filtered_available:
-            self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.accCB)
-        else:
             self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.filteredAccCB)
+        else:
+            self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.AccCB)
 
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
