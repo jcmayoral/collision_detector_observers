@@ -50,9 +50,9 @@ class FusionAcc(ChangeDetection):
         self.subscriber_.unregister()
 
         if self.is_filtered_available:
-            self.subscriber_ = rospy.Subscriber("accel", filteredAccCB, self.accCB)
-        else:
             self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.accCB)
+        else:
+            self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.filteredAccCB)
 
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
