@@ -1,7 +1,7 @@
 import rospy
 from FaultDetection import ChangeDetection
 from geometry_msgs.msg import AccelStamped
-from fusion_msgs.msg import sensorFusionMsg
+from fusion_msgs.msg import sensorFusionMsg, controllerFusionMsg
 import numpy as np
 
 # For PCA
