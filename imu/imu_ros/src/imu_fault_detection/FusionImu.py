@@ -29,7 +29,7 @@ class FusionImu(ChangeDetection):
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
-        rospy.logjinfo("Imu Ready for Fusion")
+        rospy.loginfo("Imu Ready for Fusion")
         rospy.spin()
 
     def reset_publisher(self):
@@ -52,13 +52,11 @@ class FusionImu(ChangeDetection):
 
     def imuCB(self, msg):
 
-        while (self.i< self.window_size):
-            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-                          msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
-            self.i = self.i+1
-            if len(self.samples) is self.window_size:
-                self.samples.pop(0)
-            return
+        self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
+                      msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
+        
+        if len(self.samples) > self.window_size:
+            self.samples.pop(0)
 
         output_msg = sensorFusionMsg()
 

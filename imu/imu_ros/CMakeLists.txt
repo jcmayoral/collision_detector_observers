@@ -9,6 +9,7 @@ project(imu_ros)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
+  sensor_msgs
   fusion_msgs
   rospy
   dynamic_reconfigure
@@ -107,7 +108,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES imu_ros
-   CATKIN_DEPENDS geometry_msgs rospy dynamic_reconfigure
+   CATKIN_DEPENDS geometry_msgs sensor_msgs rospy dynamic_reconfigure
 #  DEPENDS system_lib
 )
 

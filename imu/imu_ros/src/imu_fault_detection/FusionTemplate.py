@@ -24,5 +24,5 @@ class IMUFusionTemplate(CollisionFusionSensor):
                               config_type = imuConfig)
 
     def updateData(self,msg):
-        self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-                              msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
+        self.current_measure =[msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
+                              msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z] #Angular
