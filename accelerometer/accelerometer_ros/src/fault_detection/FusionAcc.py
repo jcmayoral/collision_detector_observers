@@ -46,14 +46,6 @@ class FusionAcc(ChangeDetection):
     def reset_publisher(self):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
 
-    def reset_subscriber(self):
-        self.subscriber_.unregister()
-
-        if self.is_filtered_available:
-            self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.filteredAccCB)
-        else:
-            self.subscriber_ = rospy.Subscriber("accel", AccelStamped, self.accCB)
-
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
@@ -63,7 +55,6 @@ class FusionAcc(ChangeDetection):
         self.is_filtered_available = config["is_filter"]
 
         self.reset_publisher()
-        self.reset_subscriber()
 
         if config["reset"]:
             self.clear_values()
@@ -127,7 +118,11 @@ class FusionAcc(ChangeDetection):
 
         if any(t > self.threshold for t in cur):
             output_msg.msg = sensorFusionMsg.ERROR
-            print ("Collision NOT FILTER")
+            print ("Collision FOUND")
+            if self.is_collision_expected and self.is_filtered_available:
+                print ("Colliison Filtered")
+                output_msg.msg = sensorFusionMsg.WARN
+
             #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
             #print (np.degrees(np.arctan2(y,x)))
             #print np.degrees(np.arctan2(diff[1],diff[0]))
