@@ -1,7 +1,7 @@
 import rospy
 from FaultDetection import ChangeDetection
 from sensor_msgs.msg import Imu
-from fusion_msgs.msg import sensorFusionMsg
+from fusion_msgs.msg import sensorFusionMsg, controllerFusionMsg
 import numpy as np
 
 # For PCA
@@ -22,15 +22,27 @@ class FusionImu(ChangeDetection):
         self.threshold = threshold
         self.weight = 1.0
         self.is_disable = False
+        self.is_filtered_available = False
+        self.is_collision_expected = False
+
         ChangeDetection.__init__(self,6)
         rospy.init_node("imu_fusion", anonymous=False)
         rospy.Subscriber("imu/data", Imu, self.imuCB)
+        self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
         sensor_number = rospy.get_param("~sensor_number", 0)
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
         rospy.loginfo("Imu Ready for Fusion")
         rospy.spin()
+
+    def filterCB(self, msg):
+        if msg.mode is controllerFusionMsg.IGNORE:
+            self.is_collision_expected = True
+            print ("here")
+            #rospy.sleep(0.05) # TODO
+        else:
+            self.is_collision_expected = False
 
     def reset_publisher(self):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
@@ -42,6 +54,8 @@ class FusionImu(ChangeDetection):
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
         self.sensor_number = config["detector_id"]
+        self.is_filtered_available = config["is_filter"]
+
         self.reset_publisher()
 
         if config["reset"]:
@@ -54,7 +68,7 @@ class FusionImu(ChangeDetection):
 
         self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
                       msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
-        
+
         if len(self.samples) > self.window_size:
             self.samples.pop(0)
 
@@ -84,6 +98,10 @@ class FusionImu(ChangeDetection):
             print ("Collision")
             print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
             print (np.degrees(np.arctan2(y,x)))
+            if self.is_collision_expected and self.is_filtered_available:
+                print ("Colliison Filtered")
+                output_msg.msg = sensorFusionMsg.WARN
+                self.is_collision_expected = False
             #print np.degrees(np.arctan2(diff[1],diff[0]))
             #For Testing
 

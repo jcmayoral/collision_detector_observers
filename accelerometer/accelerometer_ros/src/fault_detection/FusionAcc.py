@@ -122,6 +122,8 @@ class FusionAcc(ChangeDetection):
             if self.is_collision_expected and self.is_filtered_available:
                 print ("Colliison Filtered")
                 output_msg.msg = sensorFusionMsg.WARN
+                self.is_collision_expected = False
+
 
             #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
             #print (np.degrees(np.arctan2(y,x)))
