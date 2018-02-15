@@ -3,6 +3,7 @@ from FaultDetection import ChangeDetection
 from sensor_msgs.msg import Imu
 from fusion_msgs.msg import sensorFusionMsg, controllerFusionMsg
 import numpy as np
+import math
 
 # For PCA
 from sklearn.decomposition import PCA
@@ -93,7 +94,7 @@ class FusionImu(ChangeDetection):
         output_msg.window_size = self.window_size
         print ("Accelerations " , x,y,z)
 
-        if any(t > self.threshold for t in cur):
+        if any(t > self.threshold for t in cur if not math.isnan(t) and t < 1000):
             output_msg.msg = sensorFusionMsg.ERROR
             print ("Collision")
             print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
