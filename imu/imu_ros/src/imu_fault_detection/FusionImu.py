@@ -94,7 +94,7 @@ class FusionImu(ChangeDetection):
         output_msg.window_size = self.window_size
         print ("Accelerations " , x,y,z)
 
-        if any(t > self.threshold for t in cur if not math.isnan(t) and t < 1000):
+        if any(t > self.threshold for t in cur if not math.isnan(t)):
             output_msg.msg = sensorFusionMsg.ERROR
             print ("Collision")
             print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
