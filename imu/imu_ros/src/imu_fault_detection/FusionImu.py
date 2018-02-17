@@ -25,6 +25,7 @@ class FusionImu(ChangeDetection):
         self.is_disable = False
         self.is_filtered_available = False
         self.is_collision_expected = False
+        self.is_over_lapping_required = False
 
         ChangeDetection.__init__(self,6)
         rospy.init_node("imu_fusion", anonymous=False)
@@ -40,7 +41,6 @@ class FusionImu(ChangeDetection):
     def filterCB(self, msg):
         if msg.mode is controllerFusionMsg.IGNORE:
             self.is_collision_expected = True
-            print ("here")
             #rospy.sleep(0.05) # TODO
         else:
             self.is_collision_expected = False
@@ -56,6 +56,7 @@ class FusionImu(ChangeDetection):
         self.is_disable = config["is_disable"]
         self.sensor_number = config["detector_id"]
         self.is_filtered_available = config["is_filter"]
+        self.is_over_lapping_required = config["overlap"]
 
         self.reset_publisher()
 
@@ -67,11 +68,18 @@ class FusionImu(ChangeDetection):
 
     def imuCB(self, msg):
 
-        self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-                      msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angular
+        if self.is_over_lapping_required:
+            if len(self.samples) > self.window_size:
+                self.samples.pop(0)
 
-        if len(self.samples) > self.window_size:
+        elif ( len(self.samples) < self.window_size):
+            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
+            msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+            self.i = self.i+1
+        else:
             self.samples.pop(0)
+            return
+
 
         output_msg = sensorFusionMsg()
 
