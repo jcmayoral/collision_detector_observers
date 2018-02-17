@@ -14,8 +14,7 @@ from imu_ros.cfg import imuConfig
 
 class FusionImu(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
-        self.data_ = []
-        self.data_.append([0,0,0,0,0,0])
+        self.data_ = np.zeros(6)
         self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
@@ -28,14 +27,17 @@ class FusionImu(ChangeDetection):
         self.is_over_lapping_required = False
 
         ChangeDetection.__init__(self,6)
+
         rospy.init_node("imu_fusion", anonymous=False)
-        rospy.Subscriber("imu/data", Imu, self.imuCB)
-        self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
         sensor_number = rospy.get_param("~sensor_number", 0)
-        self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
+        self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
         rospy.loginfo("Imu Ready for Fusion")
+
+        rospy.Subscriber("imu/data", Imu, self.imuCB)
+        self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
+
         rospy.spin()
 
     def filterCB(self, msg):
@@ -69,10 +71,12 @@ class FusionImu(ChangeDetection):
     def imuCB(self, msg):
 
         if self.is_over_lapping_required:
+            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
+            msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
             if len(self.samples) > self.window_size:
                 self.samples.pop(0)
 
-        elif ( len(self.samples) < self.window_size):
+        elif ( self.i < self.window_size):
             self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
             msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
             self.i = self.i+1
@@ -80,6 +84,7 @@ class FusionImu(ChangeDetection):
             self.samples.pop(0)
             return
 
+        self.i =0
 
         output_msg = sensorFusionMsg()
 
@@ -100,13 +105,13 @@ class FusionImu(ChangeDetection):
         #Filling Message
         output_msg.header.frame_id = self.frame
         output_msg.window_size = self.window_size
-        print ("Accelerations " , x,y,z)
+        ##print ("Accelerations " , x,y,z)
 
-        if any(t > self.threshold for t in cur if not math.isnan(t)):
+        if any(t > self.threshold for t in cur[0:2] if not math.isnan(t)):
             output_msg.msg = sensorFusionMsg.ERROR
-            print ("Collision")
-            print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
-            print (np.degrees(np.arctan2(y,x)))
+            #print ("Collision")
+            #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+            #print (np.degrees(np.arctan2(y,x)))
             if self.is_collision_expected and self.is_filtered_available:
                 print ("Colliison Filtered")
                 output_msg.msg = sensorFusionMsg.WARN

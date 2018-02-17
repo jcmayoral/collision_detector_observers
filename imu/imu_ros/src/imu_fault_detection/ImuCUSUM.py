@@ -10,7 +10,7 @@ from FaultDetection import ChangeDetection
 import matplotlib.pyplot as plt
 
 class ImuCUSUM(RealTimePlotter,ChangeDetection):
-    def __init__(self, max_samples = 500, pace = 2, cusum_window_size = 10 ):
+    def __init__(self, max_samples = 500, pace = 10, cusum_window_size = 20 ):
         self.data_ = []
         self.data_.append([0,0,0,0,0,0])
         self.step_ = []
