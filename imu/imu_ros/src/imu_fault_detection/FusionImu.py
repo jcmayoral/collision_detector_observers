@@ -25,6 +25,7 @@ class FusionImu(ChangeDetection):
         self.is_filtered_available = False
         self.is_collision_expected = False
         self.is_over_lapping_required = False
+        self.is_covariance_detector_enable = False
 
         ChangeDetection.__init__(self,6)
 
@@ -59,6 +60,7 @@ class FusionImu(ChangeDetection):
         self.sensor_number = config["detector_id"]
         self.is_filtered_available = config["is_filter"]
         self.is_over_lapping_required = config["overlap"]
+        self.is_covariance_detector_enable = config["covariance_detector"]
 
         self.reset_publisher()
 
@@ -108,15 +110,33 @@ class FusionImu(ChangeDetection):
         output_msg.window_size = self.window_size
         ##print ("Accelerations " , x,y,z)
 
-        if any(t > self.threshold for t in cur if not math.isnan(t)):
-            output_msg.msg = sensorFusionMsg.ERROR
-            #print ("Collision")
-            #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
-            #print (np.degrees(np.arctan2(y,x)))
-            if self.is_collision_expected and self.is_filtered_available:
-                print ("Colliison Filtered")
-                output_msg.msg = sensorFusionMsg.WARN
-                self.is_collision_expected = False
+
+        covariance = np.var(cur)
+        if covariance > 100000:
+            covariance = 0 #TODO
+
+        if self.is_covariance_detector_enable:
+            if covariance > self.threshold and covariance is not 100000:
+                output_msg.msg = sensorFusionMsg.ERROR
+                #print ("Collision")
+                #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+                #print (np.degrees(np.arctan2(y,x)))
+                if self.is_collision_expected and self.is_filtered_available:
+                    print ("Colliison Filtered")
+                    output_msg.msg = sensorFusionMsg.WARN
+                    self.is_collision_expected = False
+                #print np.degrees(np.arctan2(diff[1],diff[0]))
+                #For Testing
+        else:
+            if any(t > self.threshold for t in cur if not math.isnan(t)):
+                output_msg.msg = sensorFusionMsg.ERROR
+                #print ("Collision")
+                #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+                #print (np.degrees(np.arctan2(y,x)))
+                if self.is_collision_expected and self.is_filtered_available:
+                    print ("Colliison Filtered")
+                    output_msg.msg = sensorFusionMsg.WARN
+                    self.is_collision_expected = False
             #print np.degrees(np.arctan2(diff[1],diff[0]))
             #For Testing
 
@@ -139,11 +159,8 @@ class FusionImu(ChangeDetection):
         print(np.arctan2(pca.explained_variance_[1],pca.explained_variance_[0]))
         print(pca.explained_variance_)
         """
-        test_value = np.var(cur)
-        if test_value > 100000:
-            test_value = 0 #TODO
 
-        cur = np.append(cur, test_value)
+        cur = np.append(cur, covariance)
 
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
