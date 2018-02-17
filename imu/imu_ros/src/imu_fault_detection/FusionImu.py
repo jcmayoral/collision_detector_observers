@@ -138,6 +138,8 @@ class FusionImu(ChangeDetection):
         print(np.arctan2(pca.explained_variance_[1],pca.explained_variance_[0]))
         print(pca.explained_variance_)
         """
+        cur = np.append(cur, np.var(cur))
+
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
