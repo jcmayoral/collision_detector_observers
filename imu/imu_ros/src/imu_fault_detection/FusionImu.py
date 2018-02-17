@@ -76,13 +76,15 @@ class FusionImu(ChangeDetection):
             if len(self.samples) > self.window_size:
                 self.samples.pop(0)
 
-        elif ( self.i < self.window_size):
-            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-            msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
-            self.i = self.i+1
         else:
-            self.samples.pop(0)
-            return
+            if ( self.i < self.window_size) and len(self.samples) < self.window_size:
+                self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
+                msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+                self.i = self.i+1
+            else:
+                self.samples.pop(0)
+                print ("pop")
+                return
 
         self.i =0
 
@@ -138,7 +140,11 @@ class FusionImu(ChangeDetection):
         print(np.arctan2(pca.explained_variance_[1],pca.explained_variance_[0]))
         print(pca.explained_variance_)
         """
-        cur = np.append(cur, np.var(cur))
+        test_value = np.var(cur)
+        if test_value > 10000000:
+            test_value = 10000000 #TODO
+
+        cur = np.append(cur, test_value)
 
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
