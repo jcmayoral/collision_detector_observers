@@ -72,7 +72,7 @@ class FusionImu(ChangeDetection):
 
         if self.is_over_lapping_required:
             self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-            msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+                msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
             if len(self.samples) > self.window_size:
                 self.samples.pop(0)
 
@@ -83,7 +83,6 @@ class FusionImu(ChangeDetection):
                 self.i = self.i+1
             else:
                 self.samples.pop(0)
-                print ("pop")
                 return
 
         self.i =0
@@ -109,7 +108,7 @@ class FusionImu(ChangeDetection):
         output_msg.window_size = self.window_size
         ##print ("Accelerations " , x,y,z)
 
-        if any(t > self.threshold for t in cur[0:2] if not math.isnan(t)):
+        if any(t > self.threshold for t in cur if not math.isnan(t)):
             output_msg.msg = sensorFusionMsg.ERROR
             #print ("Collision")
             #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
@@ -141,8 +140,8 @@ class FusionImu(ChangeDetection):
         print(pca.explained_variance_)
         """
         test_value = np.var(cur)
-        if test_value > 10000000:
-            test_value = 10000000 #TODO
+        if test_value > 100000:
+            test_value = 0 #TODO
 
         cur = np.append(cur, test_value)
 
