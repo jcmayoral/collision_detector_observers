@@ -115,6 +115,7 @@ class FusionImu(ChangeDetection):
         if covariance > 100000:
             covariance = 0 #TODO
 
+        print "imu cov ", covariance
         if self.is_covariance_detector_enable:
             if covariance > self.threshold and covariance is not 100000:
                 output_msg.msg = sensorFusionMsg.ERROR
