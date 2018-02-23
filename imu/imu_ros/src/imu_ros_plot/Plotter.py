@@ -6,13 +6,13 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 class Plotter(RealTimePlotter):
-    def __init__(self, threshold = 1000, pace = 200):
+    def __init__(self, threshold = 1000, pace = 200, input_topic):
         self.data_ = []
         self.step_ = []
         print ("Plotter Constructor Initialized")
         RealTimePlotter.__init__(self,threshold,pace)
         rospy.init_node("imu_plotter", anonymous=True)
-        rospy.Subscriber("imu/data", Imu, self.imuCB)
+        rospy.Subscriber(input_topic, Imu, self.imuCB)
         plt.show()
         rospy.spin()
         plt.close("all")

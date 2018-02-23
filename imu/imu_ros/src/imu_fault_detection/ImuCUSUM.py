@@ -21,7 +21,8 @@ class ImuCUSUM(RealTimePlotter,ChangeDetection):
         RealTimePlotter.__init__(self,max_samples,pace)
         ChangeDetection.__init__(self,6)
         rospy.init_node("imu_cusum", anonymous=True)
-        rospy.Subscriber("imu/data", Imu, self.imuCB)
+        input_topic = rospy.get_param("~input_topic", '/imu/data')
+        rospy.Subscriber(input_topic, Imu, self.imuCB)
         self.dyn_reconfigure_srv = Server(imuGaussConfig, self.dynamic_reconfigureCB)
 
         plt.legend()

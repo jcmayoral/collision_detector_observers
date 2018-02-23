@@ -35,8 +35,8 @@ class FusionImu(ChangeDetection):
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
         rospy.loginfo("Imu Ready for Fusion")
-
-        rospy.Subscriber("imu/data", Imu, self.imuCB)
+        input_topic = rospy.get_param("~input_topic", "/imu/data")
+        rospy.Subscriber(input_topic, Imu, self.imuCB)
         self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
 
         rospy.spin()
