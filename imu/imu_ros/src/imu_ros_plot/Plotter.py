@@ -6,7 +6,7 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 class Plotter(RealTimePlotter):
-    def __init__(self, threshold = 1000, pace = 200, input_topic):
+    def __init__(self, threshold = 1000, pace = 200, input_topic='/imu'):
         self.data_ = []
         self.step_ = []
         print ("Plotter Constructor Initialized")
