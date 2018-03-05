@@ -14,7 +14,7 @@ from imu_ros.cfg import imuConfig
 
 class FusionImu(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
-        self.data_ = np.zeros(6)
+        self.data_ = np.zeros(3)
         self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
@@ -27,7 +27,7 @@ class FusionImu(ChangeDetection):
         self.is_over_lapping_required = False
         self.is_covariance_detector_enable = False
 
-        ChangeDetection.__init__(self,6)
+        ChangeDetection.__init__(self,3,10)
 
         rospy.init_node("imu_fusion", anonymous=False)
         sensor_number = rospy.get_param("~sensor_number", 0)
@@ -73,15 +73,15 @@ class FusionImu(ChangeDetection):
     def imuCB(self, msg):
 
         if self.is_over_lapping_required:
-            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-                msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]), #]) #Just Linear For Testing
+                #msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
             if len(self.samples) > self.window_size:
                 self.samples.pop(0)
 
         else:
             if ( self.i < self.window_size) and len(self.samples) < self.window_size:
-                self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z, #]) #Just Linear For Testing
-                msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+                self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z])#, #]) #Just Linear For Testing
+                #msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
                 self.i = self.i+1
             else:
                 self.samples.pop(0)
@@ -93,12 +93,12 @@ class FusionImu(ChangeDetection):
 
         current_mean = np.mean(self.samples, axis=0)
         #print (current_mean)
-        tmp = (np.array(self.last_mean) - np.array(current_mean))
-        x,y,z,gx,gy,gz = 9.81 * (tmp/255) * 2
-        magnitude = np. sqrt(np.power(x,2) + np.power(y,2) + np.power(z,2))
+        #tmp = (np.array(self.last_mean) - np.array(current_mean))
+        #x,y,z,gx,gy,gz = 9.81 * (tmp/255) * 2
+        #magnitude = np. sqrt(np.power(x,2) + np.power(y,2) + np.power(z,2))
         #print ("magnitude ", magnitude)
         #print (np.arccos(x/magnitude), np.arccos(y/magnitude), np.arccos(z/magnitude))
-        output_msg.angle = np.arctan2(y,x)#np.arccos(x/magnitude)#np.arctan2(y,x)
+        #output_msg.angle = np.arctan2(y,x)#np.arccos(x/magnitude)#np.arctan2(y,x)
         #Detecting Collisions
 
         self.i=0
@@ -114,32 +114,6 @@ class FusionImu(ChangeDetection):
         covariance = np.var(cur)
         if covariance > 100000:
             covariance = 0 #TODO
-
-        print "imu cov ", covariance
-        if self.is_covariance_detector_enable:
-            if covariance > self.threshold and covariance is not 100000:
-                output_msg.msg = sensorFusionMsg.ERROR
-                #print ("Collision")
-                #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
-                #print (np.degrees(np.arctan2(y,x)))
-                if self.is_collision_expected and self.is_filtered_available:
-                    print ("Colliison Filtered")
-                    output_msg.msg = sensorFusionMsg.WARN
-                    self.is_collision_expected = False
-                #print np.degrees(np.arctan2(diff[1],diff[0]))
-                #For Testing
-        else:
-            if any(t > self.threshold for t in cur if not math.isnan(t)):
-                output_msg.msg = sensorFusionMsg.ERROR
-                #print ("Collision")
-                #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
-                #print (np.degrees(np.arctan2(y,x)))
-                if self.is_collision_expected and self.is_filtered_available:
-                    print ("Colliison Filtered")
-                    output_msg.msg = sensorFusionMsg.WARN
-                    self.is_collision_expected = False
-            #print np.degrees(np.arctan2(diff[1],diff[0]))
-            #For Testing
 
 
         """
@@ -160,13 +134,44 @@ class FusionImu(ChangeDetection):
         print(np.arctan2(pca.explained_variance_[1],pca.explained_variance_[0]))
         print(pca.explained_variance_)
         """
-
-        cur = np.append(cur, covariance)
+        #print "imu cov ", covariance
+        #cur = np.append(cur, covariance)
 
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
         output_msg.weight = self.weight
 
-        if not self.is_disable:
-            self.pub.publish(output_msg)
+
+        if self.is_covariance_detector_enable:
+            if covariance > self.threshold and covariance is not 100000:
+                print (cur)
+                output_msg.msg = sensorFusionMsg.ERROR
+                #print ("Collision")
+                #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+                #print (np.degrees(np.arctan2(y,x)))
+                if self.is_collision_expected and self.is_filtered_available:
+                    print ("Colliison Filtered")
+                    output_msg.msg = sensorFusionMsg.WARN
+                    self.is_collision_expected = False
+                if not self.is_disable:
+                    self.pub.publish(output_msg)
+                #print np.degrees(np.arctan2(diff[1],diff[0]))
+                #For Testing
+        else:
+            if any(t > self.threshold for t in cur if not math.isnan(t)):
+                print (cur)
+                output_msg.msg = sensorFusionMsg.ERROR
+                #print ("Collision")
+                #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
+                #print (np.degrees(np.arctan2(y,x)))
+                if self.is_collision_expected and self.is_filtered_available:
+                    print ("Colliison Filtered")
+                    output_msg.msg = sensorFusionMsg.WARN
+                    self.is_collision_expected = False
+
+                if not self.is_disable:
+                    self.pub.publish(output_msg)
+
+        #print np.degrees(np.arctan2(diff[1],diff[0]))
+        #For Testing
