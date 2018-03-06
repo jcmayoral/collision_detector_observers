@@ -26,6 +26,7 @@ class FusionImu(ChangeDetection):
         self.is_collision_expected = False
         self.is_over_lapping_required = False
         self.is_covariance_detector_enable = False
+        self.old_angle = 0
 
         ChangeDetection.__init__(self,3,10)
 
@@ -116,24 +117,20 @@ class FusionImu(ChangeDetection):
             covariance = 0 #TODO
 
 
-        """
+
         #TODO FOR PCA
-        pca = PCA(n_components=2)
-        pca.fit(self.samples)
-        pca = pca.transform(self.samples)
+        pca_model = PCA(n_components=2)
+        pca_model.fit(self.samples)
+        pca_results = pca_model.transform(self.samples)
 
         #print(pca.components_)
-        print(pca.explained_variance_ratio_)
-        print ("New:")
-        current_angle = np.degrees(np.arctan2(pca.explained_variance_ratio_[0],pca.explained_variance_ratio_[1]))
+        print ("New:", pca_model.explained_variance_ratio_)
+        current_angle = np.degrees(np.arctan2(pca_model.explained_variance_ratio_[1],pca_model.explained_variance_ratio_[0]))
         #current_angle = np.degrees(np.arctan2(cur[1],cur[0]))
-        msg.angle = current_angle - self.last_angle
-        self.last_angle = current_angle
+        current_angle = math.atan2(self.samples[-1][1] - self.samples[-2][1],self.samples[-2][0] - self.samples[-1][0])
+        print (current_angle)
+        output_msg.angle = current_angle
 
-        print (pca.explained_variance_)
-        print(np.arctan2(pca.explained_variance_[1],pca.explained_variance_[0]))
-        print(pca.explained_variance_)
-        """
         #print "imu cov ", covariance
         #cur = np.append(cur, covariance)
 
