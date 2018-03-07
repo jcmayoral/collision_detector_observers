@@ -19,7 +19,7 @@ class FusionImu(ChangeDetection):
         self.msg = 0
         self.window_size = cusum_window_size
         self.frame = frame
-        self.threshold = threshold
+        self.threshold = np.ones(3) * threshold
         self.weight = 1.0
         self.is_disable = False
         self.is_filtered_available = False
@@ -54,7 +54,9 @@ class FusionImu(ChangeDetection):
 
 
     def dynamic_reconfigureCB(self,config, level):
-        self.threshold = config["threshold"]
+        self.threshold[0] = config["x_threshold"]
+        self.threshold[1] = config["y_threshold"]
+        self.threshold[2] = config["z_threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
@@ -92,12 +94,12 @@ class FusionImu(ChangeDetection):
 
         output_msg = sensorFusionMsg()
 
+        #print ("magnitude ", magnitude)
         current_mean = np.mean(self.samples, axis=0)
         #print (current_mean)
         #tmp = (np.array(self.last_mean) - np.array(current_mean))
         #x,y,z,gx,gy,gz = 9.81 * (tmp/255) * 2
         #magnitude = np. sqrt(np.power(x,2) + np.power(y,2) + np.power(z,2))
-        #print ("magnitude ", magnitude)
         #print (np.arccos(x/magnitude), np.arccos(y/magnitude), np.arccos(z/magnitude))
         #output_msg.angle = np.arctan2(y,x)#np.arccos(x/magnitude)#np.arctan2(y,x)
         #Detecting Collisions
@@ -110,13 +112,7 @@ class FusionImu(ChangeDetection):
         output_msg.header.frame_id = self.frame
         output_msg.window_size = self.window_size
         ##print ("Accelerations " , x,y,z)
-
-
         covariance = np.var(cur)
-        if covariance > 100000:
-            covariance = 0 #TODO
-
-
 
         #TODO FOR PCA
         pca_model = PCA(n_components=2)
@@ -141,8 +137,9 @@ class FusionImu(ChangeDetection):
 
 
         if self.is_covariance_detector_enable:
-            if covariance > self.threshold and covariance is not 100000:
+            if any(covariance > self.threshold):
                 rospy.logwarn(covariance)
+                rospy.logwarn(cur > self.threshold)
                 output_msg.msg = sensorFusionMsg.ERROR
                 #print ("Collision")
                 #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
@@ -156,8 +153,21 @@ class FusionImu(ChangeDetection):
                 #print np.degrees(np.arctan2(diff[1],diff[0]))
                 #For Testing
         else:
-            if any(t > self.threshold for t in cur if not math.isnan(t)):
+            if any(cur > self.threshold):
                 rospy.logwarn(cur)
+                if cur[2] > self.threshold[2]:
+                    rospy.logwarn("Angle")
+                    #return;
+                x,y,z = (cur > self.threshold)
+
+                if x and not y:
+                    print("NORTH")
+
+                if not x and y:
+                    print("EAST")
+                if x and y:
+                    print ("NE")
+
                 output_msg.msg = sensorFusionMsg.ERROR
                 #print ("Collision")
                 #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
