@@ -124,11 +124,11 @@ class FusionImu(ChangeDetection):
         pca_results = pca_model.transform(self.samples)
 
         #print(pca.components_)
-        print ("New:", pca_model.explained_variance_ratio_)
+        #print ("New:", pca_model.explained_variance_ratio_)
         current_angle = np.degrees(np.arctan2(pca_model.explained_variance_ratio_[1],pca_model.explained_variance_ratio_[0]))
         #current_angle = np.degrees(np.arctan2(cur[1],cur[0]))
         current_angle = math.atan2(self.samples[-1][1] - self.samples[-2][1],self.samples[-2][0] - self.samples[-1][0])
-        print (current_angle)
+        #print (current_angle)
         output_msg.angle = current_angle
 
         #print "imu cov ", covariance
@@ -142,7 +142,7 @@ class FusionImu(ChangeDetection):
 
         if self.is_covariance_detector_enable:
             if covariance > self.threshold and covariance is not 100000:
-                print (cur)
+                rospy.logwarn(covariance)
                 output_msg.msg = sensorFusionMsg.ERROR
                 #print ("Collision")
                 #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
@@ -157,7 +157,7 @@ class FusionImu(ChangeDetection):
                 #For Testing
         else:
             if any(t > self.threshold for t in cur if not math.isnan(t)):
-                print (cur)
+                rospy.logwarn(cur)
                 output_msg.msg = sensorFusionMsg.ERROR
                 #print ("Collision")
                 #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
