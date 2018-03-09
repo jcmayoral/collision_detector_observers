@@ -14,7 +14,7 @@ from imu_ros.cfg import imuConfig
 
 class FusionImu(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
-        self.data_ = np.zeros(3)
+        self.data_ = np.zeros(6)
         self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
@@ -28,7 +28,7 @@ class FusionImu(ChangeDetection):
         self.is_covariance_detector_enable = False
         self.old_angle = 0
 
-        ChangeDetection.__init__(self,3,10)
+        ChangeDetection.__init__(self,6,10)
 
         rospy.init_node("imu_fusion", anonymous=False)
         sensor_number = rospy.get_param("~sensor_number", 0)
@@ -76,15 +76,15 @@ class FusionImu(ChangeDetection):
     def imuCB(self, msg):
 
         if self.is_over_lapping_required:
-            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z]), #]) #Just Linear For Testing
-                #msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+            self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z,#]), #]) #Just Linear For Testing
+                msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
             if len(self.samples) > self.window_size:
                 self.samples.pop(0)
 
         else:
             if ( self.i < self.window_size) and len(self.samples) < self.window_size:
-                self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z])#, #]) #Just Linear For Testing
-                #msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
+                self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z,#])#, #]) #Just Linear For Testing
+                msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
                 self.i = self.i+1
             else:
                 self.samples.pop(0)
@@ -153,12 +153,12 @@ class FusionImu(ChangeDetection):
                 #print np.degrees(np.arctan2(diff[1],diff[0]))
                 #For Testing
         else:
-            if any(cur > self.threshold):
+            if any(cur[0:3] > self.threshold):
                 rospy.logwarn(cur)
-                if cur[2] > self.threshold[2]:
+                if cur[5] > self.threshold[2]:
                     rospy.logwarn("Angle")
                     #return;
-                x,y,z = (cur > self.threshold)
+                x,y,z = (cur[0:3] > self.threshold)
 
                 if x and not y:
                     print("NORTH")
