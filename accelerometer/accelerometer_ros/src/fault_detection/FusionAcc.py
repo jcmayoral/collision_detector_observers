@@ -130,6 +130,12 @@ class FusionAcc(ChangeDetection):
         output_msg.header.frame_id = self.frame
         output_msg.window_size = self.window_size
         #print ("Accelerations " , x,y,z)
+        self.i =0
+
+        output_msg.header.stamp = rospy.Time.now()
+        output_msg.sensor_id.data = self.sensor_id
+        output_msg.data = cur
+        output_msg.weight = self.weight
 
         if any(cur[0:3] > self.threshold):
             output_msg.msg = sensorFusionMsg.ERROR
@@ -147,9 +153,3 @@ class FusionAcc(ChangeDetection):
             #print (np.degrees(np.arctan2(y,x)))
             #print np.degrees(np.arctan2(diff[1],diff[0]))
             #For Testing
-        self.i =0
-
-        output_msg.header.stamp = rospy.Time.now()
-        output_msg.sensor_id.data = self.sensor_id
-        output_msg.data = cur
-        output_msg.weight = self.weight
