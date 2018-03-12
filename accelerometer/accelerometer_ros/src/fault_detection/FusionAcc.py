@@ -22,6 +22,7 @@ class FusionAcc(ChangeDetection):
         self.weight = 1.0
         self.is_disable = False
         self.is_filtered_available = False
+        self.is_over_lapping_required = False
         self.is_collision_expected = False
 
         ChangeDetection.__init__(self)
@@ -55,6 +56,8 @@ class FusionAcc(ChangeDetection):
         self.is_disable = config["is_disable"]
         self.sensor_number = config["detector_id"]
         self.is_filtered_available = config["is_filter"]
+        self.is_over_lapping_required = config["overlap"]
+
 
         self.reset_publisher()
 
