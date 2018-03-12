@@ -2,12 +2,12 @@ import rospy
 from FaultDetection import ChangeDetection
 from std_msgs.msg import Header
 import numpy as np
+
 from sensor_msgs.msg import Imu
 #Dynamic Reconfigure
 from dynamic_reconfigure.server import Server
-from imu_ros.cfg import imuConfig
+from imu_ros.cfg import imuLabelerConfig
 import math
-
 #(0, {'defaultSampleRate': 44100.0, 'defaultLowOutputLatency': 0.008684807256235827, 'defaultLowInputLatency': 0.008684807256235827, 'maxInputChannels': 1L, 'structVersion': 2L, 'hostApi': 0L, 'index': 0, 'defaultHighOutputLatency': 0.034829931972789115, 'maxOutputChannels': 2L, 'name': u'USB Audio Device: - (hw:1,0)', 'defaultHighInputLatency': 0.034829931972789115})
 
 
@@ -32,7 +32,7 @@ class LabelerIMU(ChangeDetection):
         sensor_number = rospy.get_param("~sensor_number", 0)
         self.pub = rospy.Publisher('collision_label', Header, queue_size=1)
         self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
-        self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
+        self.dyn_reconfigure_srv = Server(imuLabelerConfig, self.dynamic_reconfigureCB)
         rospy.loginfo("Imu Labeler Ready")
 
         input_topic = rospy.get_param("~input_topic", "/imu")
@@ -40,20 +40,10 @@ class LabelerIMU(ChangeDetection):
 
         rospy.spin()
 
-    def reset_publisher(self):
-        pass
-
     def dynamic_reconfigureCB(self,config, level):
         self.threshold = config["threshold"]
         self.window_size = config["window_size"]
-        self.weight = config["weight"]
-        self.is_disable = config["is_disable"]
-        self.sensor_number = config["detector_id"]
-        self.is_filtered_available = config["is_filter"]
         self.is_over_lapping_required = config["overlap"]
-        self.is_covariance_detector_enable = config["covariance_detector"]
-
-        self.reset_publisher()
 
         if config["reset"]:
             self.clear_values()

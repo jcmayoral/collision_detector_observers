@@ -93,6 +93,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_dynamic_reconfigure_options(
    cfg/imu.cfg
    cfg/imuGauss.cfg
+   cfg/imu_label.cfg
 #   cfg/DynReconf2.cfg
 )
 
