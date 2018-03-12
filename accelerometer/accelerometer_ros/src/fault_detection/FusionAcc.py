@@ -18,7 +18,7 @@ class FusionAcc(ChangeDetection):
         self.msg = 0
         self.window_size = cusum_window_size
         self.frame = frame
-        self.threshold = threshold
+        self.threshold = np.ones(3) * threshold
         self.weight = 1.0
         self.is_disable = False
         self.is_filtered_available = False
@@ -47,7 +47,9 @@ class FusionAcc(ChangeDetection):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
 
     def dynamic_reconfigureCB(self,config, level):
-        self.threshold = config["threshold"]
+        self.threshold[0] = config["x_threshold"]
+        self.threshold[1] = config["y_threshold"]
+        self.threshold[2] = config["z_threshold"]
         self.window_size = config["window_size"]
         self.weight = config["weight"]
         self.is_disable = config["is_disable"]
@@ -91,10 +93,19 @@ class FusionAcc(ChangeDetection):
             self.pub.publish(output_msg)
 
     def accCB(self, msg):
-        self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
 
-        if ( len(self.samples) > self.window_size):
-            self.samples.pop(0)
+        if self.is_over_lapping_required:
+            self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+            if len(self.samples) > self.window_size:
+                self.samples.pop(0)
+
+        else:
+            if ( self.i < self.window_size) and len(self.samples) < self.window_size:
+                self.addData([msg.accel.linear.x,msg.accel.linear.y, msg.accel.angular.z])
+                self.i = self.i+1
+            else:
+                self.samples.pop(0)
+                return
 
         output_msg = sensorFusionMsg()
 
@@ -116,7 +127,7 @@ class FusionAcc(ChangeDetection):
         output_msg.window_size = self.window_size
         #print ("Accelerations " , x,y,z)
 
-        if any(t > self.threshold for t in cur):
+        if any(cur[0:3] > self.threshold):
             output_msg.msg = sensorFusionMsg.ERROR
             print ("Collision FOUND")
             if self.is_collision_expected and self.is_filtered_available:
