@@ -138,8 +138,8 @@ class FusionAcc(ChangeDetection):
                 print ("Colliison Filtered")
                 output_msg.msg = sensorFusionMsg.WARN
                 self.is_collision_expected = False
-                if not self.is_disable:
-                    self.pub.publish(output_msg)
+            if not self.is_disable:
+                self.pub.publish(output_msg)
 
 
 
