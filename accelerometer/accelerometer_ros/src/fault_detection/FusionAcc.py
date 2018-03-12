@@ -138,6 +138,9 @@ class FusionAcc(ChangeDetection):
                 print ("Colliison Filtered")
                 output_msg.msg = sensorFusionMsg.WARN
                 self.is_collision_expected = False
+                if not self.is_disable:
+                    self.pub.publish(output_msg)
+
 
 
             #print (np.degrees(np.arccos(x/magnitude)), np.degrees(np.arccos(y/magnitude)), np.degrees((np.arccos(z/magnitude))))
@@ -150,6 +153,3 @@ class FusionAcc(ChangeDetection):
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
         output_msg.weight = self.weight
-
-        if not self.is_disable:
-            self.pub.publish(output_msg)
