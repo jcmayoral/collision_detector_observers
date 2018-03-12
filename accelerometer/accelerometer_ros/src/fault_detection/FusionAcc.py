@@ -16,6 +16,7 @@ class FusionAcc(ChangeDetection):
         self.data_ = []
         self.data_.append([0,0,0])
         self.msg = 0
+        self.i = 0
         self.window_size = cusum_window_size
         self.frame = frame
         self.threshold = np.ones(3) * threshold
@@ -143,26 +144,8 @@ class FusionAcc(ChangeDetection):
             #print (np.degrees(np.arctan2(y,x)))
             #print np.degrees(np.arctan2(diff[1],diff[0]))
             #For Testing
+        self.i =0
 
-
-        """
-        #TODO FOR PCA
-        pca = PCA(n_components=2)
-        pca.fit(self.samples)
-        pca = pca.transform(self.samples)
-
-        #print(pca.components_)
-        print(pca.explained_variance_ratio_)
-        print ("New:")
-        current_angle = np.degrees(np.arctan2(pca.explained_variance_ratio_[0],pca.explained_variance_ratio_[1]))
-        #current_angle = np.degrees(np.arctan2(cur[1],cur[0]))
-        msg.angle = current_angle - self.last_angle
-        self.last_angle = current_angle
-
-        print (pca.explained_variance_)
-        print(np.arctan2(pca.explained_variance_[1],pca.explained_variance_[0]))
-        print(pca.explained_variance_)
-        """
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
