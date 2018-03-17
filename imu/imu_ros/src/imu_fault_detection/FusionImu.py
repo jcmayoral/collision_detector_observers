@@ -15,6 +15,7 @@ from imu_ros.cfg import imuConfig
 class FusionImu(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
         self.data_ = np.zeros(6)
+        self.last_measure_ = np.zeros(6)
         self.i = 0
         self.msg = 0
         self.window_size = cusum_window_size
@@ -45,7 +46,7 @@ class FusionImu(ChangeDetection):
     def filterCB(self, msg):
         if msg.mode is controllerFusionMsg.IGNORE:
             self.is_collision_expected = True
-            #rospy.sleep(0.05) # TODO
+            rospy.sleep(0.05) # TODO
         else:
             self.is_collision_expected = False
 
@@ -82,13 +83,14 @@ class FusionImu(ChangeDetection):
                 self.samples.pop(0)
 
         else:
-            if ( self.i < self.window_size) and len(self.samples) < self.window_size:
+            if ( self.i < self.window_size):
                 self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z,#])#, #]) #Just Linear For Testing
                 msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
                 self.i = self.i+1
-            else:
-                self.samples.pop(0)
-                return
+                if len(self.samples) is self.window_size:
+                    self.samples.pop(0)
+                return    
+
 
         self.i =0
 
@@ -153,7 +155,8 @@ class FusionImu(ChangeDetection):
                 #print np.degrees(np.arctan2(diff[1],diff[0]))
                 #For Testing
         else:
-            if any(cur[0:3] > self.threshold):
+            diff = cur - self.last_measure_
+            if any(diff[0:3] > self.threshold):
                 rospy.logwarn(cur)
                 if cur[5] > self.threshold[2]:
                     rospy.logwarn("Angle")
@@ -180,5 +183,6 @@ class FusionImu(ChangeDetection):
                 if not self.is_disable:
                     self.pub.publish(output_msg)
 
+        self.last_measure_ = cur
         #print np.degrees(np.arctan2(diff[1],diff[0]))
         #For Testing
