@@ -28,6 +28,7 @@ class FusionImu(ChangeDetection):
         self.is_over_lapping_required = False
         self.is_covariance_detector_enable = False
         self.old_angle = 0
+        self.scale = 1
 
         ChangeDetection.__init__(self,6,10)
 
@@ -46,9 +47,11 @@ class FusionImu(ChangeDetection):
     def filterCB(self, msg):
         if msg.mode is controllerFusionMsg.IGNORE:
             self.is_collision_expected = True
-            rospy.sleep(0.05) # TODO
+            self.scale = 5
+            #rospy.sleep(0.05) # TODO
         else:
             self.is_collision_expected = False
+            self.scale = 1
 
     def reset_publisher(self):
         self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
@@ -63,9 +66,13 @@ class FusionImu(ChangeDetection):
         self.is_disable = config["is_disable"]
         self.sensor_number = config["detector_id"]
         self.is_filtered_available = config["is_filter"]
+
+        if not self.is_filtered_available:
+            self.is_collision_expected = False
+ 
         self.is_over_lapping_required = config["overlap"]
         self.is_covariance_detector_enable = config["covariance_detector"]
-
+        self.scale = 1
         self.reset_publisher()
 
         if config["reset"]:
@@ -136,6 +143,7 @@ class FusionImu(ChangeDetection):
         output_msg.sensor_id.data = self.sensor_id
         output_msg.data = cur
         output_msg.weight = self.weight
+        output_msg.msg = 0
 
 
         if self.is_covariance_detector_enable:
@@ -155,9 +163,9 @@ class FusionImu(ChangeDetection):
                 #print np.degrees(np.arctan2(diff[1],diff[0]))
                 #For Testing
         else:
-            diff = cur - self.last_measure_
-            if any(diff[0:3] > self.threshold):
-                rospy.logwarn(cur)
+            diff = np.array(cur - self.last_measure_)
+            if any(np.absolute(cur[0:3]) > self.threshold * self.scale):
+                rospy.logwarn(np.absolute(cur[0:3]))
                 if cur[5] > self.threshold[2]:
                     rospy.logwarn("Angle")
                     #return;
@@ -180,8 +188,8 @@ class FusionImu(ChangeDetection):
                     output_msg.msg = sensorFusionMsg.WARN
                     self.is_collision_expected = False
 
-                if not self.is_disable:
-                    self.pub.publish(output_msg)
+        if not self.is_disable:
+            self.pub.publish(output_msg)
 
         self.last_measure_ = cur
         #print np.degrees(np.arctan2(diff[1],diff[0]))
