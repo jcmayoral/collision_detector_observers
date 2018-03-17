@@ -78,7 +78,7 @@ class FusionImu(ChangeDetection):
         if self.is_over_lapping_required:
             self.addData([msg.linear_acceleration.x, msg.linear_acceleration.y, msg.linear_acceleration.z,#]), #]) #Just Linear For Testing
                 msg.angular_velocity.x, msg.angular_velocity.y, msg.angular_velocity.z]) #Angula
-            if len(self.samples) > self.window_size:
+            while len(self.samples) > self.window_size:
                 self.samples.pop(0)
 
         else:
