@@ -32,18 +32,6 @@ rosrun rosserial_python serial_node.py /dev/ttyACM#
 
 Where # stands for the ID of the arduino provided by the OS.
 
-# imu #
+#Collision Observers#
 
-## fake_imu ##
-
-1. fake_imu_node: Creates an Imu Messages from Odometry and publish an /imu topic.
-1. fake_imu_plot: use the RealTimePloting interface to plot raw data from fake_imu_node.
-
-## imu_ros ##
-
-This ROS package gives multiple functionalities using the Fault_Detector library provided at https://github.com/jcmayoral/myRaspberryPI through the use of an imu. Scripts are similar to the one described on acceleromter_ros package, the difference remains on the inputs and outputs of the node.
-
-
-## mpu6050_serial_to_imu ##
-
-A third part ros compatible node which provides an arduino code to publish the readings to a serial connections. So it can be read directed from the serial and parsed to ROS by a separated node.
+Contains a set of collision observers which are modified to detect collision on mobile robots. All are based on a CUSUM (Change Detection Algorithm). The package include observers for accelerometer, localization variance, imu, Kalman Filter, LiDar, Microphones and odometry speeds. Amcl and Odometry have proved not to be reliable, but are integrated for future work and potential modifications.
