@@ -101,8 +101,8 @@ class FusionImu(ChangeDetection):
         output_msg.window_size = self.window_size
         covariance = np.var(cur)
 
-        current_angle = math.atan2(self.samples[-1][1] - self.samples[-2][1],self.samples[-2][0] - self.samples[-1][0])
-        output_msg.angle = current_angle
+        #current_angle = math.atan2(self.samples[-1][1] - self.samples[-2][1],self.samples[-2][0] - self.samples[-1][0])
+        #output_msg.angle = current_angle
 
         output_msg.header.stamp = rospy.Time.now()
         output_msg.sensor_id.data = self.sensor_id
