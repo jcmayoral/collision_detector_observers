@@ -75,13 +75,13 @@ class LabelerIMU(ChangeDetection):
         self.changeDetection(len(self.samples))
         cur = np.array(self.cum_sum, dtype = object)
         #cur = np.append(cur, covariance)
-
+        print(cur)
         #Filling Message
         msg.stamp = rospy.Time.now()
         msg.frame_id = self.frame
 
         if not self.is_disable:
             if any(t > self.threshold for t in cur if not math.isnan(t)):
-                print ("COllision")
+                print ("COllision",cur)
                 if not self.is_disable:
                     self.pub.publish(msg)

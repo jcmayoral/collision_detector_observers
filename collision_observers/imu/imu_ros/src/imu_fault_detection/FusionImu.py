@@ -37,6 +37,7 @@ class FusionImu(ChangeDetection):
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
         rospy.loginfo("Imu Ready for Fusion")
         input_topic = rospy.get_param("~input_topic", "/imu/data")
+        print(input_topic)
         rospy.Subscriber(input_topic, Imu, self.imuCB)
         self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
 
@@ -123,7 +124,10 @@ class FusionImu(ChangeDetection):
                 if not self.is_disable:
                     self.pub.publish(output_msg)
         else:
+            print ("here", cur[0:3])
+
             if any(cur[0:3] > self.threshold):
+                print ("here2")
                 rospy.logwarn(cur)
                 if cur[5] > self.threshold[2]:
                     rospy.logwarn("Angle")
