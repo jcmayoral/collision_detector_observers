@@ -143,7 +143,7 @@ class FusionAudioCapture(CollisionFusionSensor):
                               threshold = 1000,
                               node = "microphone_collisions",
                               sensor_type = AudioData,
-                              topic_name = "/audio",
+                              topic_name = "/audio/audio",
                               sensor_number = 2,
                               config_type = microphoneConfig)
 
