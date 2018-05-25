@@ -4,7 +4,7 @@
 
   <arg name="sensor_id" default="android_imu_1" />
   <arg name="sensor_number" default="1" />
-  <arg name="topic_name" default="/phone1/android/imu" />
+  <arg name="topic_name" default="/android/imu" />
 
   <node pkg="imu_ros" type="imu_for_fusion" respawn="false" name="imu_collision_detection" output="screen">
     <param name="input_topic" type="string" value="$(arg topic_name)"/>

@@ -21,7 +21,7 @@ class ImuGaussCUSUM(RealTimePlotter,ChangeDetection,GaussPlot):
         ChangeDetection.__init__(self,6)
         GaussPlot.__init__(self )
         rospy.init_node("imu_gauss", anonymous=False)
-        rospy.Subscriber("imu/data", Imu, self.imuCB)
+        rospy.Subscriber("android/imu", Imu, self.imuCB)
         self.dyn_reconfigure_srv = Server(imuGaussConfig, self.dynamic_reconfigureCB)
 
         plt.legend()

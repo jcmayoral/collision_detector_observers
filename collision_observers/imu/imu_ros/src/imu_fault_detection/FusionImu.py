@@ -31,13 +31,20 @@ class FusionImu(ChangeDetection):
         ChangeDetection.__init__(self,6,10)
 
         rospy.init_node("imu_fusion", anonymous=False)
-        sensor_number = rospy.get_param("~sensor_number", 0)
-        self.pub = rospy.Publisher('collisions_'+ str(sensor_number), sensorFusionMsg, queue_size=10)
-        self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
+
+        if rospy.has_param("~sensor_id"):
+            self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
+        if rospy.has_param("~sensor_number"):
+            self.pub.unregister()
+            self.sensor_number = rospy.get_param("~sensor_number", 0)
+        if rospy.has_param("~input_topic"):
+            input_topic = rospy.get_param("~input_topic", "/imu/data")
+
+        self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
+
         rospy.loginfo("Imu Ready for Fusion")
-        input_topic = rospy.get_param("~input_topic", "/imu/data")
-        print(input_topic)
+
         rospy.Subscriber(input_topic, Imu, self.imuCB)
         self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
 
@@ -121,8 +128,8 @@ class FusionImu(ChangeDetection):
                     print ("Colliison Filtered")
                     output_msg.msg = sensorFusionMsg.WARN
                     self.is_collision_expected = False
-                if not self.is_disable:
-                    self.pub.publish(output_msg)
+
+
         else:
             print ("here", cur[0:3])
 
@@ -148,5 +155,5 @@ class FusionImu(ChangeDetection):
                     output_msg.msg = sensorFusionMsg.WARN
                     self.is_collision_expected = False
 
-                if not self.is_disable:
-                    self.pub.publish(output_msg)
+        if not self.is_disable:
+            self.pub.publish(output_msg)
