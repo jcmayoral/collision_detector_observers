@@ -14,6 +14,7 @@ from imu_ros.cfg import imuConfig
 
 class FusionImu(ChangeDetection):
     def __init__(self, cusum_window_size = 10, frame="base_link", sensor_id="accel1", threshold = 60):
+        self._ready = False
         self.data_ = np.zeros(6)
         self.i = 0
         self.msg = 0
@@ -33,21 +34,23 @@ class FusionImu(ChangeDetection):
         rospy.init_node("imu_fusion", anonymous=False)
         self.dyn_reconfigure_srv = Server(imuConfig, self.dynamic_reconfigureCB)
 
+        self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=1)
+
         if rospy.has_param("~sensor_id"):
             self.sensor_id = rospy.get_param("~sensor_id", sensor_id)
         if rospy.has_param("~sensor_number"):
             self.pub.unregister()
             self.sensor_number = rospy.get_param("~sensor_number", 0)
+            self.reset_publisher()
         if rospy.has_param("~input_topic"):
             input_topic = rospy.get_param("~input_topic", "/imu/data")
 
-        self.pub = rospy.Publisher('collisions_'+ str(self.sensor_number), sensorFusionMsg, queue_size=10)
-
-        rospy.loginfo("Imu Ready for Fusion")
 
         rospy.Subscriber(input_topic, Imu, self.imuCB)
         self.subscriber_ = rospy.Subscriber("filter", controllerFusionMsg, self.filterCB)
 
+        rospy.loginfo("Imu Ready for Fusion")
+        self._ready = True
         rospy.spin()
 
     def filterCB(self, msg):
@@ -131,22 +134,22 @@ class FusionImu(ChangeDetection):
 
 
         else:
-            print ("here", cur[0:3])
+            #print ("here", cur[0:3])
 
             if any(cur[0:3] > self.threshold):
-                print ("here2")
-                rospy.logwarn(cur)
-                if cur[5] > self.threshold[2]:
-                    rospy.logwarn("Angle")
-                x,y,z = (cur[0:3] > self.threshold)
+                #print ("here2")
+                #rospy.logwarn(cur)
+                #if cur[5] > self.threshold[2]:
+                #    rospy.logwarn("Angle")
+                #x,y,z = (cur[0:3] > self.threshold)
 
-                if x and not y:
-                    print("NORTH")
+                #if x and not y:
+                    #print("NORTH")
 
-                if not x and y:
-                    print("EAST")
-                if x and y:
-                    print ("NE")
+                #if not x and y:
+                    #print("EAST")
+                #if x and y:
+                    #print ("NE")
 
                 output_msg.msg = sensorFusionMsg.ERROR
 
@@ -155,5 +158,5 @@ class FusionImu(ChangeDetection):
                     output_msg.msg = sensorFusionMsg.WARN
                     self.is_collision_expected = False
 
-        if not self.is_disable:
+        if not self.is_disable and self._ready:
             self.pub.publish(output_msg)

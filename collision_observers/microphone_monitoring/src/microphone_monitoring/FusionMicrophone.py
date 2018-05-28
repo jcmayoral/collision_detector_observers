@@ -160,11 +160,11 @@ class FusionAudioCapture(CollisionFusionSensor):
         #print len(self.cum_sum)
         suma = np.nansum(self.cum_sum)
         var = np.var(self.cum_sum)
-        rospy.loginfo( "Sum %d" , suma)
-        rospy.loginfo( "Var %f" , var)
-        if suma >= self.threshold: 
-            rospy.logwarn( "Sum %d" , suma)
-            rospy.logwarn( "Var %f" , var)
+        #rospy.loginfo( "Sum %d" , suma)
+        #rospy.loginfo( "Var %f" , var)
+        if suma >= self.threshold:
+            #rospy.logwarn( "Sum %d" , suma)
+            #rospy.logwarn( "Var %f" , var)
             output_msg.msg = sensorFusionMsg.ERROR
         if not self.is_disable:
             output_msg.header.stamp = rospy.Time.now()
