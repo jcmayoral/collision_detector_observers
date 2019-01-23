@@ -46,7 +46,8 @@ for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
         if data > threshold:
             print ("Collision")
         CumSum.append(data)
-        detector_.samples.clear()
+        detector_.samples = list()
+        #detector_.samples.clear()
         j = 0
 
     rawData.append(amplitude)

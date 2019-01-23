@@ -108,7 +108,7 @@ class FusionMicrophone(ChangeDetection):
         msg.header.stamp = rospy.Time.now()
         msg.header.frame_id = self.frame
         msg.window_size = self.window_size
-
+        msg.msg = sensorFusionMsg.OK
 
         #Detecting Collisions
         suma = np.sum(np.array(self.cum_sum, dtype = object))
@@ -118,14 +118,15 @@ class FusionMicrophone(ChangeDetection):
         print ("S",suma)
         print (var)
         if suma > self.threshold:
-            #print ("COllision")
+            print ("COllision")
             msg.sensor_id.data = self.sensor_id
             msg.data = np.array(suma)
             msg.weight = self.weight
             msg.msg = sensorFusionMsg.ERROR
 
-            if not self.is_disable:
-                self.pub.publish(msg)
+
+        if not self.is_disable:
+            self.pub.publish(msg)
 
 
 
@@ -160,16 +161,14 @@ class FusionAudioCapture(CollisionFusionSensor):
         #print len(self.cum_sum)
         suma = np.nansum(self.cum_sum)
         var = np.var(self.cum_sum)
-        rospy.loginfo( "Sum %d" , suma)
-        rospy.loginfo( "Var %f" , var)
+        output_msg.sensor_id.data = self.sensor_id
         if suma >= self.threshold and not self.is_disable:
             rospy.logwarn( "Sum %d" , suma)
             rospy.logwarn( "Var %f" , var)
             output_msg.msg = sensorFusionMsg.ERROR
             output_msg.header.stamp = rospy.Time.now()
-            output_msg.sensor_id.data = self.sensor_id
             tmp = list()
             tmp.append(suma)
             output_msg.data = tmp
             output_msg.weight = self.weight
-            self.pub.publish(output_msg)
+        self.pub.publish(output_msg)
